@@ -153,7 +153,12 @@ export default defineComponent({
           class="rounded-3xl border border-slate-200/70 bg-white/90 text-slate-900 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/90 dark:text-slate-100"
         >
           <template #start>
-            <div class="flex items-center gap-3 px-3 py-2">
+            <div
+              class="flex cursor-pointer items-center gap-3 px-3 py-2"
+              role="button"
+              tabindex="0"
+              @click="$router.push({ name: 'home' })"
+            >
               <div
                 class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
               >

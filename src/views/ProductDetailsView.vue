@@ -32,10 +32,12 @@ function formatPrice(value: number): string {
       <template #content>
         <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_1.1fr]">
           <div class="space-y-6">
-            <div
-              class="flex h-64 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-100 via-white to-slate-200 text-4xl font-semibold text-slate-500 shadow-inner"
-            >
-              {{ product.name.slice(0, 2).toUpperCase() }}
+            <div class="h-64 overflow-hidden rounded-3xl bg-slate-100 shadow-inner">
+              <img
+                :src="product.imageUrl"
+                :alt="product.name"
+                class="h-full w-full object-cover"
+              />
             </div>
             <div class="flex flex-wrap items-center gap-3">
               <Tag value="Garantia 90 dias" severity="success" />

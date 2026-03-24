@@ -6,4 +6,5 @@ export interface ProductProps {
   price: number
   category: Category
   stock: number
+  imageUrl: string
 }

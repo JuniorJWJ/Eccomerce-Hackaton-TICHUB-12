@@ -7,6 +7,7 @@ import InputNumber from 'primevue/inputnumber'
 import Dropdown from 'primevue/dropdown'
 import PButton from 'primevue/button'
 import { categories } from '../../data/categories'
+import { categoryState } from '../../state/categories.store'
 import { addProduct, getProductById, updateProduct } from '../../state/products.store'
 
 const route = useRoute()
@@ -23,7 +24,10 @@ const form = reactive({
   price: 0,
   stock: 0,
   categoryId: categories[0]?.id ?? 0,
+  imageUrl: '',
 })
+
+const categoryOptions = computed(() => categoryState.categories)
 
 const error = ref('')
 const initialized = ref(false)
@@ -39,10 +43,28 @@ watch(
     form.price = product.price
     form.stock = product.stock
     form.categoryId = product.category.id
+    form.imageUrl = product.imageUrl
     initialized.value = true
   },
   { immediate: true },
 )
+
+function handleImageUpload(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    const result = reader.result
+    if (typeof result === 'string') {
+      form.imageUrl = result
+    }
+  }
+  reader.readAsDataURL(file)
+}
 
 function handleSave(): void {
   error.value = ''
@@ -62,7 +84,7 @@ function handleSave(): void {
     return
   }
 
-  const selectedCategory = categories.find((category) => category.id === form.categoryId)
+  const selectedCategory = categoryOptions.value.find((category) => category.id === form.categoryId)
   if (!selectedCategory) {
     error.value = 'Selecione uma categoria válida.'
     return
@@ -74,6 +96,7 @@ function handleSave(): void {
       price: form.price,
       category: selectedCategory,
       stock: form.stock,
+      imageUrl: form.imageUrl,
     })
 
     if (!updated) {
@@ -86,6 +109,7 @@ function handleSave(): void {
       price: form.price,
       category: selectedCategory,
       stock: form.stock,
+      imageUrl: form.imageUrl,
     })
   }
 
@@ -124,10 +148,24 @@ function handleSave(): void {
           <InputText v-model="form.name" placeholder="Ex.: Whey Protein 1kg" />
         </div>
         <div class="grid gap-2">
+          <label class="text-sm font-medium text-slate-200">Upload de imagem</label>
+          <input type="file" accept="image/*" @change="handleImageUpload" />
+        </div>
+        <div
+          v-if="form.imageUrl"
+          class="flex items-center gap-4 rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4"
+        >
+          <img :src="form.imageUrl" alt="Prévia do produto" class="h-20 w-20 rounded-xl object-cover" />
+          <div>
+            <p class="text-sm font-semibold text-slate-100">Prévia da imagem</p>
+            <p class="text-xs text-slate-400">A foto aparece na vitrine.</p>
+          </div>
+        </div>
+        <div class="grid gap-2">
           <label class="text-sm font-medium text-slate-200">Categoria</label>
           <Dropdown
             v-model="form.categoryId"
-            :options="categories"
+            :options="categoryOptions"
             optionLabel="title"
             optionValue="id"
             placeholder="Selecione"

@@ -12,6 +12,7 @@ import ProfileView from '../views/ProfileView.vue'
 import AdminProductsView from '../views/admin/AdminProductsView.vue'
 import AdminProductFormView from '../views/admin/AdminProductFormView.vue'
 import AdminReportsView from '../views/admin/AdminReportsView.vue'
+import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -128,6 +129,17 @@ const router = createRouter({
             breadcrumb: [
               { label: 'Admin', to: { name: 'admin-products' } },
               { label: 'Editar produto' },
+            ],
+          },
+        },
+        {
+          path: 'categorias',
+          name: 'admin-categories',
+          component: AdminCategoriesView,
+          meta: {
+            breadcrumb: [
+              { label: 'Admin', to: { name: 'admin-products' } },
+              { label: 'Categorias' },
             ],
           },
         },

@@ -8,6 +8,7 @@ export class Product implements ProductProps {
     public price: number,
     public category: Category,
     public stock: number,
+    public imageUrl: string,
   ) {
     if (!name.trim()) {
       throw new Error('Product: o nome do produto não pode ser vazio.')

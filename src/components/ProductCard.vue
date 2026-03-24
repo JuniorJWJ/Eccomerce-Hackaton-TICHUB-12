@@ -35,10 +35,12 @@ const rating = Math.min(5, 3.5 + ratingSeed * 0.2)
     <template #content>
       <div class="flex h-full min-h-[300px] flex-col">
         <div class="relative">
-          <div
-            class="flex h-40 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 via-white to-slate-200 text-2xl font-semibold text-slate-500 shadow-inner"
-          >
-            {{ product.name.slice(0, 2).toUpperCase() }}
+          <div class="h-40 overflow-hidden rounded-2xl bg-slate-100 shadow-inner">
+            <img
+              :src="product.imageUrl"
+              :alt="product.name"
+              class="h-full w-full object-cover"
+            />
           </div>
           <div class="absolute right-3 top-3 flex items-center gap-2">
             <Tag v-if="product.stock === 0" value="Esgotado" severity="danger" />

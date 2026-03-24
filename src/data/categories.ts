@@ -1,7 +1,4 @@
 ﻿import { Category } from '../model/category.model'
+import { categoryState } from '../state/categories.store'
 
-export const categories: Category[] = [
-  new Category(1, 'Suplementos'),
-  new Category(2, 'Hardware'),
-  new Category(3, 'Roupa'),
-]
+export const categories: Category[] = categoryState.categories

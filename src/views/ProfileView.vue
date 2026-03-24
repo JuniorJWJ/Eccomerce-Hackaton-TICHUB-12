@@ -17,6 +17,12 @@ const city = ref(profile.value.city)
 const state = ref(profile.value.state)
 const zip = ref(profile.value.zip)
 const photoUrl = ref(profile.value.photoUrl)
+const mockAvatars = [
+  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%23F8B4B4\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%239DD7F7\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%23FBD38D\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%239AE6B4\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
+]
 
 const saved = ref(false)
 
@@ -46,6 +52,31 @@ function handleSave(): void {
   setTimeout(() => {
     saved.value = false
   }, 2000)
+}
+
+function handlePhotoUpload(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    const result = reader.result
+    if (typeof result === 'string') {
+      photoUrl.value = result
+    }
+  }
+  reader.readAsDataURL(file)
+}
+
+function clearPhoto(): void {
+  photoUrl.value = ''
+}
+
+function selectMockAvatar(avatar: string): void {
+  photoUrl.value = avatar
 }
 </script>
 
@@ -83,8 +114,8 @@ function handleSave(): void {
               <InputMask v-model="phone" mask="(99) 99999-9999" placeholder="(11) 99999-9999" />
             </div>
             <div class="grid gap-2">
-              <label class="text-sm font-medium text-slate-600">Foto (URL)</label>
-              <InputText v-model="photoUrl" placeholder="https://" />
+              <label class="text-sm font-medium text-slate-600">Upload de foto</label>
+              <input type="file" accept="image/*" @change="handlePhotoUpload" />
             </div>
           </div>
 
@@ -109,6 +140,21 @@ function handleSave(): void {
             </div>
           </div>
 
+          <div class="space-y-3">
+            <p class="text-sm font-medium text-slate-600">Avatares mockados</p>
+            <div class="flex flex-wrap gap-3">
+              <button
+                v-for="avatar in mockAvatars"
+                :key="avatar"
+                class="h-12 w-12 overflow-hidden rounded-full border border-slate-200"
+                type="button"
+                @click="selectMockAvatar(avatar)"
+              >
+                <img :src="avatar" alt="Avatar mockado" class="h-full w-full object-cover" />
+              </button>
+            </div>
+          </div>
+
           <div
             v-if="photoUrl"
             class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
@@ -122,6 +168,7 @@ function handleSave(): void {
               <p class="text-sm font-semibold text-slate-900">Prévia da foto</p>
               <p class="text-xs text-slate-500">Essa imagem aparecerá no seu perfil.</p>
             </div>
+            <PButton size="small" severity="secondary" label="Remover" @click="clearPhoto" />
           </div>
 
           <div

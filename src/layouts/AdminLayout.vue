@@ -20,6 +20,11 @@ const menuItems = [
     command: () => router.push({ name: 'admin-products' }),
   },
   {
+    label: 'Categorias',
+    icon: 'pi pi-tags',
+    command: () => router.push({ name: 'admin-categories' }),
+  },
+  {
     label: 'Cadastrar produto',
     icon: 'pi pi-plus',
     command: () => router.push({ name: 'admin-product-new' }),

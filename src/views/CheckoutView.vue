@@ -23,7 +23,6 @@ const address = ref(authState.profile.address)
 const city = ref(authState.profile.city)
 const state = ref(authState.profile.state)
 const zip = ref(authState.profile.zip)
-const photoUrl = ref(authState.profile.photoUrl)
 
 const cardName = ref('')
 const cardNumber = ref('')
@@ -71,7 +70,6 @@ function handlePay(): void {
     city: city.value,
     state: state.value,
     zip: zip.value,
-    photoUrl: photoUrl.value,
   })
 
   orderId.value = `LP-${Math.floor(Math.random() * 90000 + 10000)}`
@@ -132,10 +130,6 @@ function handlePay(): void {
               <label class="text-sm font-medium text-slate-600">Telefone</label>
               <InputMask v-model="phone" mask="(99) 99999-9999" placeholder="(11) 99999-9999" />
             </div>
-            <div class="grid gap-2">
-              <label class="text-sm font-medium text-slate-600">Foto (URL)</label>
-              <InputText v-model="photoUrl" placeholder="https://" />
-            </div>
           </div>
 
           <div class="grid gap-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
@@ -159,20 +153,6 @@ function handlePay(): void {
             </div>
           </div>
 
-          <div
-            v-if="photoUrl"
-            class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
-          >
-            <img
-              :src="photoUrl"
-              alt="Foto do perfil"
-              class="h-16 w-16 rounded-full object-cover"
-            />
-            <div>
-              <p class="text-sm font-semibold text-slate-900">Prévia da foto</p>
-              <p class="text-xs text-slate-500">Imagem usada no seu perfil.</p>
-            </div>
-          </div>
         </div>
       </template>
     </Card>
