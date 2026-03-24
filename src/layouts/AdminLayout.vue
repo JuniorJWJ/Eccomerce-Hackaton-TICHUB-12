@@ -40,9 +40,9 @@ function logoutAdmin(): void {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
     <div class="mx-auto flex w-full max-w-6xl gap-6 px-6 py-8">
-      <aside class="w-64 rounded-2xl bg-slate-900/80 p-4 shadow-lg">
+      <aside class="w-64 rounded-3xl border border-slate-800/60 bg-slate-900/80 p-5 shadow-xl">
         <div class="mb-6">
           <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Admin</p>
           <h1 class="text-xl font-semibold">Painel de Gestão</h1>
@@ -64,7 +64,7 @@ function logoutAdmin(): void {
         <Breadcrumb
           v-if="breadcrumbItems.length"
           :model="breadcrumbItems"
-          class="rounded-xl border-0 bg-slate-900/70 px-4 py-2 text-sm text-slate-200 shadow-sm"
+          class="rounded-2xl border border-slate-800/60 bg-slate-900/70 px-4 py-2 text-sm text-slate-200 shadow-sm"
         />
         <RouterView />
       </section>

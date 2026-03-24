@@ -23,51 +23,71 @@ function handleAdd(): void {
 function formatPrice(value: number): string {
   return currencyFormatter.format(value)
 }
+
+const ratingSeed = (props.product.id % 5) + 1
+const rating = Math.min(5, 3.5 + ratingSeed * 0.2)
 </script>
 
 <template>
   <Card
-    class="h-full rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm dark:border-slate-800 dark:bg-slate-900/80"
+    class="group h-full overflow-hidden rounded-3xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80"
   >
     <template #content>
-      <div class="flex h-full min-h-[260px] flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-wrap items-start justify-between gap-2">
-            <h3 class="text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
+      <div class="flex h-full min-h-[300px] flex-col">
+        <div class="relative">
+          <div
+            class="flex h-40 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 via-white to-slate-200 text-2xl font-semibold text-slate-500 shadow-inner"
+          >
+            {{ product.name.slice(0, 2).toUpperCase() }}
+          </div>
+          <div class="absolute right-3 top-3 flex items-center gap-2">
+            <Tag v-if="product.stock === 0" value="Esgotado" severity="danger" />
+            <Tag v-else-if="product.stock <= 3" value="Baixo" severity="warning" />
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-1 flex-col gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
+              {{ product.category.getDisplayName() }}
+            </p>
+            <h3 class="mt-1 text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
               {{ product.name }}
             </h3>
-            <Tag v-if="product.stock === 0" value="Esgotado" severity="danger" />
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ product.category.getDisplayName() }}
-          </p>
-        </div>
 
-        <div class="mt-auto flex flex-col">
-          <span
-            class="w-full break-words text-lg font-bold leading-tight text-slate-900 dark:text-slate-100"
-          >
-            {{ formatPrice(product.price) }}
-          </span>
-          <span class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Unidade</span>
-        </div>
+          <div class="flex items-center gap-2 text-sm text-slate-500">
+            <span class="text-amber-400">★</span>
+            <span class="font-medium text-slate-700">{{ rating.toFixed(1) }}</span>
+            <span class="text-slate-400">· {{ product.stock }} em estoque</span>
+          </div>
 
-        <PButton
-          :label="product.stock === 0 ? 'Indisponível' : 'Adicionar'"
-          class="w-full"
-          :disabled="product.stock === 0"
-          :pt="{
-            root: { class: 'justify-center' },
-            label: { class: 'whitespace-nowrap text-sm font-semibold' },
-          }"
-          @click="handleAdd"
-        />
-        <RouterLink
-          class="text-center text-xs uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600"
-          :to="{ name: 'product-details', params: { id: product.id } }"
-        >
-          Ver detalhes
-        </RouterLink>
+          <div class="mt-auto flex items-center justify-between">
+            <div>
+              <p class="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {{ formatPrice(product.price) }}
+              </p>
+              <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Unidade</p>
+            </div>
+            <RouterLink
+              class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600"
+              :to="{ name: 'product-details', params: { id: product.id } }"
+            >
+              Detalhes
+            </RouterLink>
+          </div>
+
+          <PButton
+            :label="product.stock === 0 ? 'Indisponível' : 'Adicionar'"
+            class="w-full"
+            :disabled="product.stock === 0"
+            :pt="{
+              root: { class: 'justify-center rounded-xl' },
+              label: { class: 'whitespace-nowrap text-sm font-semibold' },
+            }"
+            @click="handleAdd"
+          />
+        </div>
       </div>
     </template>
   </Card>

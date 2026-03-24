@@ -1,5 +1,6 @@
 ﻿<script lang="ts" setup>
 import { computed } from '@vue/reactivity'
+import { useRouter } from 'vue-router'
 import type { CartItem } from '../interfaces/CartItem'
 import { Cart } from '../model/cart.models'
 import Card from 'primevue/card'
@@ -8,6 +9,7 @@ import InputNumber from 'primevue/inputnumber'
 import ConfirmDialog from 'primevue/confirmdialog'
 import DataView from 'primevue/dataview'
 import { useConfirm } from 'primevue/useconfirm'
+import { authState } from '../state/auth.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -16,9 +18,12 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 
 const props = defineProps<{ cart: Cart }>()
 const confirm = useConfirm()
+const router = useRouter()
+const auth = authState
 
 const cartItems = computed(() => props.cart.getItems())
 const totalItems = computed(() => props.cart.getTotalItems())
+const totalPrice = computed(() => props.cart.getFinalPrice())
 
 function removeOne(item: CartItem): void {
   props.cart.removeOne(item.product)
@@ -69,6 +74,14 @@ function confirmRemoveAll(item: CartItem): void {
   })
 }
 
+function handleCheckout(): void {
+  if (!auth.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: 'checkout' } })
+    return
+  }
+  router.push({ name: 'checkout' })
+}
+
 function formatPrice(value: number): string {
   return currencyFormatter.format(value)
 }
@@ -77,17 +90,30 @@ function formatPrice(value: number): string {
 <template>
   <section class="space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold">Carrinho</h2>
-      <span class="text-sm text-slate-500 dark:text-slate-400">
-        {{ totalItems }} itens
-      </span>
+      <div>
+        <h2 class="text-xl font-semibold">Carrinho</h2>
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Resumo</p>
+      </div>
+      <span class="text-sm text-slate-500 dark:text-slate-400">{{ totalItems }} itens</span>
     </div>
 
     <ConfirmDialog />
 
+    <Card class="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm">
+      <template #content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total</p>
+            <p class="text-2xl font-semibold text-slate-900">{{ formatPrice(totalPrice) }}</p>
+          </div>
+          <PButton label="Finalizar" icon="pi pi-check" size="small" @click="handleCheckout" />
+        </div>
+      </template>
+    </Card>
+
     <Card
       v-if="cartItems.length === 0"
-      class="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
+      class="rounded-3xl border border-dashed border-slate-300 bg-white/80 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
     >
       <template #content>
         <div class="flex flex-col gap-2 text-center">
@@ -114,17 +140,17 @@ function formatPrice(value: number): string {
           <Card
             v-for="item in items"
             :key="item.product.id"
-            class="rounded-2xl border border-slate-200/70 bg-white/95 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/80"
+            class="rounded-3xl border border-slate-200/70 bg-white/95 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/80"
           >
             <template #content>
-              <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div class="flex flex-col gap-4">
                 <div>
                   <p class="text-base font-semibold">{{ item.product.name }}</p>
                   <p class="text-sm text-slate-500 dark:text-slate-400">
                     {{ item.quantity }}x · {{ formatPrice(item.product.price * item.quantity) }}
                   </p>
                 </div>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div class="flex flex-wrap items-center gap-3">
                   <InputNumber
                     :modelValue="item.quantity"
                     class="w-full sm:w-36"

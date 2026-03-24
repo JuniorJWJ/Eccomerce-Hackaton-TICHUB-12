@@ -47,7 +47,7 @@ export default defineComponent({
 
 <template>
   <div class="space-y-6">
-    <Card class="rounded-2xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-lg">
+    <Card class="rounded-3xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-lg">
       <template #content>
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -66,17 +66,17 @@ export default defineComponent({
         </div>
 
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+          <div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4">
             <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total</p>
             <p class="mt-2 text-2xl font-semibold text-slate-100">
               {{ productState.products.length }}
             </p>
           </div>
-          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+          <div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4">
             <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Baixo estoque</p>
             <p class="mt-2 text-2xl font-semibold text-amber-300">{{ lowStockCount }}</p>
           </div>
-          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+          <div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4">
             <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Esgotados</p>
             <p class="mt-2 text-2xl font-semibold text-rose-300">{{ outOfStockCount }}</p>
           </div>
@@ -84,7 +84,7 @@ export default defineComponent({
 
         <div
           v-if="outOfStockCount"
-          class="mt-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
+          class="mt-6 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
         >
           Existem {{ outOfStockCount }} produto(s) esgotado(s). Atualize o estoque para liberar novas
           vendas.
@@ -92,7 +92,7 @@ export default defineComponent({
 
         <DataTable
           :value="productState.products"
-          class="mt-6 rounded-xl border border-slate-800/60"
+          class="mt-6 rounded-2xl border border-slate-800/60"
           tableStyle="min-width: 100%"
         >
           <Column field="id" header="ID" />
