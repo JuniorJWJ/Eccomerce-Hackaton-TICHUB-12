@@ -6,7 +6,7 @@ import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Textarea from 'primevue/textarea'
 import { cartState } from '../state/cart.store'
-import { authState } from '../state/auth.store'
+import { authState, updateProfile } from '../state/auth.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -16,14 +16,14 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 const totalItems = computed(() => cartState.cart.getTotalItems())
 const totalPrice = computed(() => cartState.cart.getFinalPrice())
 
-const name = ref(authState.user?.name ?? '')
-const email = ref(authState.user?.email ?? '')
-const phone = ref('')
-const address = ref('')
-const city = ref('')
-const state = ref('')
-const zip = ref('')
-const photoUrl = ref('')
+const name = ref(authState.profile.name || authState.user?.name || '')
+const email = ref(authState.profile.email || authState.user?.email || '')
+const phone = ref(authState.profile.phone)
+const address = ref(authState.profile.address)
+const city = ref(authState.profile.city)
+const state = ref(authState.profile.state)
+const zip = ref(authState.profile.zip)
+const photoUrl = ref(authState.profile.photoUrl)
 
 const cardName = ref('')
 const cardNumber = ref('')
@@ -62,6 +62,17 @@ function handlePay(): void {
     error.value = 'Preencha os dados do cartão para finalizar.'
     return
   }
+
+  updateProfile({
+    name: name.value,
+    email: email.value,
+    phone: phone.value,
+    address: address.value,
+    city: city.value,
+    state: state.value,
+    zip: zip.value,
+    photoUrl: photoUrl.value,
+  })
 
   orderId.value = `LP-${Math.floor(Math.random() * 90000 + 10000)}`
   isPaid.value = true

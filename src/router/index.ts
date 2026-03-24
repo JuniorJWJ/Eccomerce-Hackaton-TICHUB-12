@@ -8,6 +8,7 @@ import ProductDetailsView from '../views/ProductDetailsView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import AdminProductsView from '../views/admin/AdminProductsView.vue'
 import AdminProductFormView from '../views/admin/AdminProductFormView.vue'
 import AdminReportsView from '../views/admin/AdminReportsView.vue'
@@ -47,6 +48,18 @@ const router = createRouter({
             breadcrumb: [
               { label: 'Início', to: { name: 'home' } },
               { label: 'Finalizar compra' },
+            ],
+          },
+        },
+        {
+          path: 'perfil',
+          name: 'profile',
+          component: ProfileView,
+          meta: {
+            requiresAuth: true,
+            breadcrumb: [
+              { label: 'Início', to: { name: 'home' } },
+              { label: 'Perfil' },
             ],
           },
         },

@@ -5,11 +5,13 @@ import Menubar from 'primevue/menubar'
 import Breadcrumb from 'primevue/breadcrumb'
 import PButton from 'primevue/button'
 import Card from 'primevue/card'
+import InputText from 'primevue/inputtext'
 import { cartState } from '../state/cart.store'
 import { authState, logout } from '../state/auth.store'
 import { Role } from '../enums/Role'
 import CartPanel from '../components/CartPanel.vue'
 import { getProductById } from '../state/products.store'
+import { uiState } from '../state/ui.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -28,14 +30,17 @@ export default defineComponent({
     Breadcrumb,
     PButton,
     Card,
+    InputText,
     CartPanel,
     RouterView,
   },
   data() {
     return {
       isDark: false,
+      isMobileMenuOpen: false,
       cartState,
       authState,
+      uiState,
     }
   },
   computed: {
@@ -50,6 +55,11 @@ export default defineComponent({
           label: 'Finalizar compra',
           icon: 'pi pi-shopping-cart',
           command: () => this.goToCheckout(),
+        },
+        {
+          label: 'Perfil',
+          icon: 'pi pi-user',
+          command: () => this.goToProfile(),
         },
         {
           label: 'Admin',
@@ -100,8 +110,21 @@ export default defineComponent({
       }
       this.$router.push({ name: 'admin-products' })
     },
+    goToProfile(): void {
+      if (!this.authState.isAuthenticated) {
+        this.$router.push({ name: 'login', query: { redirect: 'profile' } })
+        return
+      }
+      this.$router.push({ name: 'profile' })
+    },
     toggleDark(): void {
       this.isDark = !this.isDark
+    },
+    toggleMobileMenu(): void {
+      this.isMobileMenuOpen = !this.isMobileMenuOpen
+    },
+    closeMobileMenu(): void {
+      this.isMobileMenuOpen = false
     },
     formatPrice(value: number): string {
       return currencyFormatter.format(value)
@@ -148,8 +171,26 @@ export default defineComponent({
           </template>
           <template #end>
             <div class="flex flex-wrap items-center gap-2 px-2">
+              <PButton
+                size="small"
+                icon="pi pi-bars"
+                class="lg:hidden"
+                severity="secondary"
+                aria-label="Abrir menu"
+                @click="toggleMobileMenu"
+              />
+              <div
+                class="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 lg:flex dark:border-slate-700 dark:bg-slate-900"
+              >
+                <i class="pi pi-search text-xs text-slate-400 dark:text-slate-500" />
+                <InputText
+                  v-model="uiState.searchTerm"
+                  placeholder="Buscar produtos"
+                  class="border-0 bg-transparent text-sm text-slate-900 shadow-none focus:ring-0 dark:text-slate-100"
+                />
+              </div>
               <Card
-                class="rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-2 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80"
+                class="hidden rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-2 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 lg:block"
               >
                 <template #content>
                   <div class="flex items-center gap-4 text-sm text-slate-900 dark:text-slate-100">
@@ -188,6 +229,39 @@ export default defineComponent({
             </div>
           </template>
         </Menubar>
+
+        <div
+          v-if="isMobileMenuOpen"
+          class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+          @click="closeMobileMenu"
+        >
+          <div
+            class="absolute right-4 top-4 w-[280px] rounded-3xl border border-slate-200/70 bg-white p-4 shadow-xl"
+            @click.stop
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-slate-900">Menu</p>
+              <PButton icon="pi pi-times" text @click="closeMobileMenu" />
+            </div>
+            <div class="mt-4 flex flex-col gap-2">
+              <PButton label="Início" text @click="$router.push({ name: 'home' }); closeMobileMenu()" />
+              <PButton label="Finalizar compra" text @click="goToCheckout(); closeMobileMenu()" />
+              <PButton label="Perfil" text @click="goToProfile(); closeMobileMenu()" />
+              <PButton label="Admin" text @click="goToAdmin(); closeMobileMenu()" />
+              <PButton
+                :label="authButtonLabel"
+                text
+                @click="authState.isAuthenticated ? logoutUser() : goToLogin(); closeMobileMenu()"
+              />
+              <PButton
+                v-if="!authState.isAuthenticated"
+                label="Criar conta"
+                text
+                @click="goToRegister(); closeMobileMenu()"
+              />
+            </div>
+          </div>
+        </div>
 
         <Breadcrumb
           v-if="breadcrumbItems.length"

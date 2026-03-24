@@ -9,6 +9,17 @@ export type User = {
   role: Role
 }
 
+export type Profile = {
+  name: string
+  email: string
+  phone: string
+  address: string
+  city: string
+  state: string
+  zip: string
+  photoUrl: string
+}
+
 const users = reactive<User[]>([
   {
     id: 1,
@@ -26,14 +37,34 @@ const users = reactive<User[]>([
   },
 ])
 
+const emptyProfile: Profile = {
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  city: '',
+  state: '',
+  zip: '',
+  photoUrl: '',
+}
+
 export const authState = reactive({
   isAuthenticated: false,
   role: Role.CUSTOMER,
   user: null as User | null,
+  profile: { ...emptyProfile },
 })
 
 export function getMockUsers(): User[] {
   return [...users]
+}
+
+function syncProfileFromUser(user: User): void {
+  authState.profile = {
+    ...authState.profile,
+    name: user.name,
+    email: user.email,
+  }
 }
 
 export function loginWithCredentials(email: string, password: string): {
@@ -52,6 +83,7 @@ export function loginWithCredentials(email: string, password: string): {
   authState.isAuthenticated = true
   authState.role = user.role
   authState.user = user
+  syncProfileFromUser(user)
   return { ok: true }
 }
 
@@ -94,12 +126,25 @@ export function registerUser(payload: {
   authState.isAuthenticated = true
   authState.role = newUser.role
   authState.user = newUser
+  authState.profile = {
+    ...emptyProfile,
+    name: newUser.name,
+    email: newUser.email,
+  }
 
   return { ok: true }
+}
+
+export function updateProfile(payload: Partial<Profile>): void {
+  authState.profile = {
+    ...authState.profile,
+    ...payload,
+  }
 }
 
 export function logout(): void {
   authState.isAuthenticated = false
   authState.role = Role.CUSTOMER
   authState.user = null
+  authState.profile = { ...emptyProfile }
 }
