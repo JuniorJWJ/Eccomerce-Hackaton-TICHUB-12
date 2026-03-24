@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'
+import Tag from 'primevue/tag'
 import { Product } from '../model/product.model'
 
 const props = defineProps<{ product: Product }>()
@@ -13,6 +14,9 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 })
 
 function handleAdd(): void {
+  if (props.product.stock === 0) {
+    return
+  }
   emit('add', props.product)
 }
 
@@ -28,9 +32,12 @@ function formatPrice(value: number): string {
     <template #content>
       <div class="flex h-full min-h-[260px] flex-col gap-4">
         <div class="flex flex-col gap-2">
-          <h3 class="text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
-            {{ product.name }}
-          </h3>
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <h3 class="text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
+              {{ product.name }}
+            </h3>
+            <Tag v-if="product.stock === 0" value="Esgotado" severity="danger" />
+          </div>
           <p class="text-sm text-slate-500 dark:text-slate-400">
             {{ product.category.getDisplayName() }}
           </p>
@@ -46,8 +53,9 @@ function formatPrice(value: number): string {
         </div>
 
         <PButton
-          label="Adicionar"
+          :label="product.stock === 0 ? 'Indisponível' : 'Adicionar'"
           class="w-full"
+          :disabled="product.stock === 0"
           :pt="{
             root: { class: 'justify-center' },
             label: { class: 'whitespace-nowrap text-sm font-semibold' },

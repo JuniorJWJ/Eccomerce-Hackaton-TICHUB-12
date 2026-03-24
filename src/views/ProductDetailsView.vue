@@ -1,6 +1,6 @@
 ﻿<script lang="ts" setup>
 import { useRoute, RouterLink } from 'vue-router'
-import { getProductById } from '../data/products'
+import { getProductById } from '../state/products.store'
 import { cartState } from '../state/cart.store'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'

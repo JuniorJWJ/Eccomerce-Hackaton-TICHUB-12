@@ -1,9 +1,17 @@
-<script lang="ts">
+﻿<script lang="ts">
 import { defineComponent } from 'vue'
+import { RouterLink } from 'vue-router'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { products } from '../../data/products'
+import PButton from 'primevue/button'
+import Tag from 'primevue/tag'
+import { productState } from '../../state/products.store'
+
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+})
 
 export default defineComponent({
   name: 'AdminProductsView',
@@ -11,38 +19,115 @@ export default defineComponent({
     Card,
     DataTable,
     Column,
+    PButton,
+    Tag,
+    RouterLink,
   },
   data() {
     return {
-      products,
+      productState,
     }
+  },
+  computed: {
+    outOfStockCount(): number {
+      return this.productState.products.filter((product) => product.stock === 0).length
+    },
+    lowStockCount(): number {
+      return this.productState.products.filter((product) => product.stock > 0 && product.stock <= 3)
+        .length
+    },
+  },
+  methods: {
+    formatPrice(value: number): string {
+      return currencyFormatter.format(value)
+    },
   },
 })
 </script>
 
 <template>
-  <Card class="rounded-2xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-lg">
-    <template #content>
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Admin</p>
-          <h2 class="text-2xl font-semibold">Produtos</h2>
+  <div class="space-y-6">
+    <Card class="rounded-2xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-lg">
+      <template #content>
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Admin</p>
+            <h2 class="text-2xl font-semibold">Produtos</h2>
+            <p class="mt-1 text-sm text-slate-400">
+              Controle estoque, cadastre novos itens e edite produtos existentes.
+            </p>
+          </div>
+          <PButton
+            label="Cadastrar produto"
+            icon="pi pi-plus"
+            class="self-start"
+            @click="$router.push({ name: 'admin-product-new' })"
+          />
         </div>
-      </div>
-      <DataTable
-        :value="products"
-        class="mt-6 rounded-xl border border-slate-800/60"
-        tableStyle="min-width: 100%"
-      >
-        <Column field="id" header="ID" />
-        <Column field="name" header="Produto" />
-        <Column field="price" header="Preço" />
-        <Column header="Categoria">
-          <template #body="{ data }">
-            {{ data.category.getDisplayName() }}
-          </template>
-        </Column>
-      </DataTable>
-    </template>
-  </Card>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-100">
+              {{ productState.products.length }}
+            </p>
+          </div>
+          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Baixo estoque</p>
+            <p class="mt-2 text-2xl font-semibold text-amber-300">{{ lowStockCount }}</p>
+          </div>
+          <div class="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Esgotados</p>
+            <p class="mt-2 text-2xl font-semibold text-rose-300">{{ outOfStockCount }}</p>
+          </div>
+        </div>
+
+        <div
+          v-if="outOfStockCount"
+          class="mt-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
+        >
+          Existem {{ outOfStockCount }} produto(s) esgotado(s). Atualize o estoque para liberar novas
+          vendas.
+        </div>
+
+        <DataTable
+          :value="productState.products"
+          class="mt-6 rounded-xl border border-slate-800/60"
+          tableStyle="min-width: 100%"
+        >
+          <Column field="id" header="ID" />
+          <Column field="name" header="Produto" />
+          <Column header="Preço">
+            <template #body="{ data }">
+              {{ formatPrice(data.price) }}
+            </template>
+          </Column>
+          <Column header="Categoria">
+            <template #body="{ data }">
+              {{ data.category.getDisplayName() }}
+            </template>
+          </Column>
+          <Column header="Estoque">
+            <template #body="{ data }">
+              <span class="font-semibold">{{ data.stock }}</span>
+            </template>
+          </Column>
+          <Column header="Status">
+            <template #body="{ data }">
+              <Tag v-if="data.stock === 0" value="Esgotado" severity="danger" />
+              <Tag v-else-if="data.stock <= 3" value="Baixo" severity="warning" />
+              <Tag v-else value="OK" severity="success" />
+            </template>
+          </Column>
+          <Column header="Ações">
+            <template #body="{ data }">
+              <RouterLink :to="{ name: 'admin-product-edit', params: { id: data.id } }">
+                <PButton label="Editar" icon="pi pi-pencil" size="small" severity="secondary" />
+              </RouterLink>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
+  </div>
 </template>

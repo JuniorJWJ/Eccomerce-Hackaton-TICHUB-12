@@ -6,10 +6,10 @@ import Breadcrumb from 'primevue/breadcrumb'
 import PButton from 'primevue/button'
 import Card from 'primevue/card'
 import { cartState } from '../state/cart.store'
-import { authState, loginAsAdmin, loginAsCustomer, logout } from '../state/auth.store'
+import { authState, logout } from '../state/auth.store'
 import { Role } from '../enums/Role'
 import CartPanel from '../components/CartPanel.vue'
-import { getProductById } from '../data/products'
+import { getProductById } from '../state/products.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -88,14 +88,14 @@ export default defineComponent({
   methods: {
     goToCheckout(): void {
       if (!this.authState.isAuthenticated) {
-        alert('FaÃ§a login para acessar o checkout.')
+        this.$router.push({ name: 'login', query: { redirect: 'checkout' } })
         return
       }
       this.$router.push({ name: 'checkout' })
     },
     goToAdmin(): void {
       if (this.authState.role !== Role.ADMIN) {
-        alert('Acesso restrito ao ADMIN.')
+        this.$router.push({ name: 'login', query: { redirect: 'admin-products', role: 'admin' } })
         return
       }
       this.$router.push({ name: 'admin-products' })
@@ -106,15 +106,11 @@ export default defineComponent({
     formatPrice(value: number): string {
       return currencyFormatter.format(value)
     },
-    loginCustomer(): void {
-      loginAsCustomer()
+    goToLogin(): void {
+      this.$router.push({ name: 'login' })
     },
-    loginAdmin(): void {
-      loginAsAdmin()
-    },
-    loginAdminAndGo(): void {
-      loginAsAdmin()
-      this.$router.push({ name: 'admin-products' })
+    goToRegister(): void {
+      this.$router.push({ name: 'register' })
     },
     logoutUser(): void {
       logout()
@@ -155,9 +151,16 @@ export default defineComponent({
                 size="small"
                 severity="secondary"
                 :label="authButtonLabel"
-                @click="authState.isAuthenticated ? logoutUser() : loginCustomer()"
+                @click="authState.isAuthenticated ? logoutUser() : goToLogin()"
               />
-              <PButton size="small" severity="info" label="Admin" @click="loginAdminAndGo" />
+              <PButton
+                v-if="!authState.isAuthenticated"
+                size="small"
+                severity="help"
+                label="Criar conta"
+                @click="goToRegister"
+              />
+              <PButton size="small" severity="info" label="Admin" @click="goToAdmin" />
               <PButton
                 size="small"
                 :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
@@ -189,6 +192,4 @@ export default defineComponent({
     </div>
   </div>
 </template>
-
-
 

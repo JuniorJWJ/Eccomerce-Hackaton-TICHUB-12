@@ -20,6 +20,11 @@ const menuItems = [
     command: () => router.push({ name: 'admin-products' }),
   },
   {
+    label: 'Cadastrar produto',
+    icon: 'pi pi-plus',
+    command: () => router.push({ name: 'admin-product-new' }),
+  },
+  {
     label: 'Relatórios',
     icon: 'pi pi-chart-line',
     command: () => router.push({ name: 'admin-reports' }),
@@ -41,7 +46,9 @@ function logoutAdmin(): void {
         <div class="mb-6">
           <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Admin</p>
           <h1 class="text-xl font-semibold">Painel de Gestão</h1>
-          <p class="mt-1 text-xs text-slate-400">Usuário: {{ authState.role }}</p>
+          <p class="mt-1 text-xs text-slate-400">
+            Usuário: {{ authState.user?.name ?? authState.role }}
+          </p>
         </div>
         <PMenu :model="menuItems" class="border-0 bg-transparent text-slate-100" />
         <PButton

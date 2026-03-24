@@ -5,4 +5,5 @@ export interface ProductProps {
   name: string
   price: number
   category: Category
+  stock: number
 }
