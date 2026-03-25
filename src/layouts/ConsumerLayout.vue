@@ -159,7 +159,7 @@ export default defineComponent({
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
         <Menubar
           :model="menuItems"
-          class="rounded-3xl border border-slate-200/70 bg-white/90 px-2 py-1 text-slate-900 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/90 dark:text-slate-100"
+          class="sticky top-4 z-40 rounded-3xl border border-slate-200/70 bg-white/90 px-2 py-1 text-slate-900 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/90 dark:text-slate-100"
         >
           <template #start>
             <div class="flex items-center gap-4">
