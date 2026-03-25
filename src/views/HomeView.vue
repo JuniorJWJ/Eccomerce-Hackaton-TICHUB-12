@@ -1,6 +1,9 @@
 ﻿<script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import InputNumber from 'primevue/inputnumber'
+import Dropdown from 'primevue/dropdown'
+import Checkbox from 'primevue/checkbox'
 import ProductCard from '../components/ProductCard.vue'
 import { productState } from '../state/products.store'
 import { cartState } from '../state/cart.store'
@@ -22,16 +25,39 @@ function toggleCategory(categoryId: number | null): void {
   selectedCategory.value = categoryId
 }
 
+const sortOptions = [
+  { label: 'Relevância', value: 'relevance' },
+  { label: 'Menor preço', value: 'price-asc' },
+  { label: 'Maior preço', value: 'price-desc' },
+  { label: 'Mais vendidos', value: 'stock-desc' },
+]
+
 const filteredProducts = computed(() => {
   const term = uiState.searchTerm.trim().toLowerCase()
+  const minPrice = uiState.minPrice ? Number(uiState.minPrice) : 0
+  const maxPrice = uiState.maxPrice ? Number(uiState.maxPrice) : 0
 
-  return productState.products.filter((product) => {
+  const filtered = productState.products.filter((product) => {
     const matchesCategory = selectedCategory.value
       ? product.category.id === selectedCategory.value
       : true
     const matchesTerm = term ? product.name.toLowerCase().includes(term) : true
-    return matchesCategory && matchesTerm
+    const matchesMin = minPrice ? product.price >= minPrice : true
+    const matchesMax = maxPrice ? product.price <= maxPrice : true
+    const matchesStock = uiState.inStockOnly ? product.stock > 0 : true
+    return matchesCategory && matchesTerm && matchesMin && matchesMax && matchesStock
   })
+
+  const sorted = [...filtered]
+  if (uiState.sortBy === 'price-asc') {
+    sorted.sort((a, b) => a.price - b.price)
+  } else if (uiState.sortBy === 'price-desc') {
+    sorted.sort((a, b) => b.price - a.price)
+  } else if (uiState.sortBy === 'stock-desc') {
+    sorted.sort((a, b) => b.stock - a.stock)
+  }
+
+  return sorted
 })
 
 const featuredProducts = computed(() => productState.products.slice(0, 5))
@@ -256,6 +282,25 @@ onBeforeUnmount(() => {
           >
             {{ category.title }}
           </button>
+        </div>
+      </div>
+
+      <div class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-4">
+        <div class="grid gap-2">
+          <label class="text-xs uppercase tracking-[0.2em] text-slate-400">Preço mínimo</label>
+          <InputNumber v-model="uiState.minPrice" mode="currency" currency="BRL" locale="pt-BR" />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-xs uppercase tracking-[0.2em] text-slate-400">Preço máximo</label>
+          <InputNumber v-model="uiState.maxPrice" mode="currency" currency="BRL" locale="pt-BR" />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-xs uppercase tracking-[0.2em] text-slate-400">Ordenar por</label>
+          <Dropdown v-model="uiState.sortBy" :options="sortOptions" optionLabel="label" optionValue="value" />
+        </div>
+        <div class="flex items-center gap-2 pt-6">
+          <Checkbox v-model="uiState.inStockOnly" :binary="true" inputId="inStockOnly" />
+          <label for="inStockOnly" class="text-sm text-slate-600">Somente em estoque</label>
         </div>
       </div>
 

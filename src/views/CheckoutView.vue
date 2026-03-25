@@ -32,6 +32,8 @@ const cardCvv = ref('')
 const isPaid = ref(false)
 const orderId = ref('')
 const error = ref('')
+const orderSteps = ['Pedido confirmado', 'Separação', 'Enviado']
+const orderStepIndex = ref(0)
 
 const isGuest = computed(() => !authState.isAuthenticated)
 
@@ -74,6 +76,13 @@ function handlePay(): void {
 
   orderId.value = `LP-${Math.floor(Math.random() * 90000 + 10000)}`
   isPaid.value = true
+  orderStepIndex.value = 0
+  setTimeout(() => {
+    orderStepIndex.value = 1
+  }, 2000)
+  setTimeout(() => {
+    orderStepIndex.value = 2
+  }, 4500)
 }
 </script>
 
@@ -103,6 +112,24 @@ function handlePay(): void {
         <p class="mt-2 text-sm text-emerald-700">
           Obrigado pela compra! Seu pedido {{ orderId }} está em processamento.
         </p>
+        <div class="mt-6 grid gap-3">
+          <div
+            v-for="(step, index) in orderSteps"
+            :key="step"
+            class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm"
+          >
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
+              :class="index <= orderStepIndex ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700'"
+            >
+              {{ index + 1 }}
+            </span>
+            <span class="font-semibold text-emerald-700">{{ step }}</span>
+            <span class="ml-auto text-xs text-emerald-600">
+              {{ index < orderStepIndex ? 'Concluído' : index === orderStepIndex ? 'Em andamento' : 'Aguardando' }}
+            </span>
+          </div>
+        </div>
       </template>
     </Card>
 

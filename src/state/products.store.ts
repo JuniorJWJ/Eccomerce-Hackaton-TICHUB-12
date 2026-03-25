@@ -2,6 +2,9 @@
 import { Product } from '../model/product.model'
 import { seedProducts } from '../data/products'
 import { Category } from '../model/category.model'
+import { categoryState } from './categories.store'
+
+const STORAGE_KEY = 'loja_products'
 
 const colors = ['%23FBD38D', '%239DD7F7', '%239AE6B4', '%23F8B4B4', '%23C4B5FD']
 
@@ -17,8 +20,58 @@ function createFallbackImage(name: string, seed = 0): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
+type StoredProduct = {
+  id: number
+  name: string
+  price: number
+  categoryId: number
+  stock: number
+  imageUrl?: string
+}
+
+function loadProducts(): Product[] {
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) {
+    return [...seedProducts]
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as StoredProduct[]
+    return parsed
+      .map((item, index) => {
+        const category = categoryState.categories.find((cat) => cat.id === item.categoryId)
+        if (!category) {
+          return null
+        }
+        return new Product(
+          item.id,
+          item.name,
+          item.price,
+          category,
+          item.stock,
+          item.imageUrl?.trim() || createFallbackImage(item.name, index),
+        )
+      })
+      .filter((item): item is Product => item !== null)
+  } catch {
+    return [...seedProducts]
+  }
+}
+
+function saveProducts(products: Product[]): void {
+  const payload: StoredProduct[] = products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    categoryId: product.category.id,
+    stock: product.stock,
+    imageUrl: product.imageUrl,
+  }))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+}
+
 export const productState = reactive({
-  products: [...seedProducts],
+  products: loadProducts(),
 })
 
 export function getProductById(id: number): Product | undefined {
@@ -47,6 +100,7 @@ export function addProduct(payload: {
   )
 
   productState.products.push(newProduct)
+  saveProducts(productState.products)
   return newProduct
 }
 
@@ -76,5 +130,6 @@ export function updateProduct(
     payload.imageUrl?.trim() || current.imageUrl || createFallbackImage(payload.name, id),
   )
   productState.products.splice(index, 1, updated)
+  saveProducts(productState.products)
   return updated
 }

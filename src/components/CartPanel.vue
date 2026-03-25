@@ -1,5 +1,5 @@
 ﻿<script lang="ts" setup>
-import { computed } from '@vue/reactivity'
+import { computed, ref } from '@vue/reactivity'
 import { useRouter } from 'vue-router'
 import type { CartItem } from '../interfaces/CartItem'
 import { Cart } from '../model/cart.models'
@@ -24,6 +24,7 @@ const auth = authState
 const cartItems = computed(() => props.cart.getItems())
 const totalItems = computed(() => props.cart.getTotalItems())
 const totalPrice = computed(() => props.cart.getFinalPrice())
+const stockWarning = ref('')
 
 function removeOne(item: CartItem): void {
   props.cart.removeOne(item.product)
@@ -38,8 +39,13 @@ function updateQuantity(item: CartItem, value: number | null): void {
     return
   }
 
-  const nextQuantity = Math.max(0, Math.floor(value))
+  const maxStock = Math.max(0, Math.floor(item.product.stock))
+  const nextQuantity = Math.min(Math.max(0, Math.floor(value)), maxStock)
   const currentQuantity = item.quantity
+
+  if (value > maxStock) {
+    stockWarning.value = `Estoque máximo atingido para ${item.product.name}.`
+  }
 
   if (nextQuantity === currentQuantity) {
     return
@@ -110,6 +116,13 @@ function formatPrice(value: number): string {
         </div>
       </template>
     </Card>
+
+    <div
+      v-if="stockWarning"
+      class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+    >
+      {{ stockWarning }}
+    </div>
 
     <Card
       v-if="cartItems.length === 0"

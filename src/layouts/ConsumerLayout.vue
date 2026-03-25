@@ -158,6 +158,8 @@ export default defineComponent({
               role="button"
               tabindex="0"
               @click="$router.push({ name: 'home' })"
+              @keydown.enter.prevent="$router.push({ name: 'home' })"
+              @keydown.space.prevent="$router.push({ name: 'home' })"
             >
               <div
                 class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"

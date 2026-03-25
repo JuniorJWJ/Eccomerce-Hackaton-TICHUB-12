@@ -20,6 +20,8 @@ export type Profile = {
   photoUrl: string
 }
 
+const STORAGE_KEY = 'loja_auth'
+
 const users = reactive<User[]>([
   {
     id: 1,
@@ -48,11 +50,61 @@ const emptyProfile: Profile = {
   photoUrl: '',
 }
 
+type StoredAuth = {
+  isAuthenticated: boolean
+  role: Role
+  user: { id: number; name: string; email: string; role: Role } | null
+  profile: Profile
+}
+
+function loadAuth(): StoredAuth {
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) {
+    return {
+      isAuthenticated: false,
+      role: Role.CUSTOMER,
+      user: null,
+      profile: { ...emptyProfile },
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as StoredAuth
+    return {
+      isAuthenticated: parsed.isAuthenticated ?? false,
+      role: parsed.role ?? Role.CUSTOMER,
+      user: parsed.user ?? null,
+      profile: parsed.profile ?? { ...emptyProfile },
+    }
+  } catch {
+    return {
+      isAuthenticated: false,
+      role: Role.CUSTOMER,
+      user: null,
+      profile: { ...emptyProfile },
+    }
+  }
+}
+
+function saveAuth(state: typeof authState): void {
+  const payload: StoredAuth = {
+    isAuthenticated: state.isAuthenticated,
+    role: state.role,
+    user: state.user
+      ? { id: state.user.id, name: state.user.name, email: state.user.email, role: state.user.role }
+      : null,
+    profile: state.profile,
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+}
+
+const loaded = loadAuth()
+
 export const authState = reactive({
-  isAuthenticated: false,
-  role: Role.CUSTOMER,
-  user: null as User | null,
-  profile: { ...emptyProfile },
+  isAuthenticated: loaded.isAuthenticated,
+  role: loaded.role,
+  user: loaded.user as User | null,
+  profile: loaded.profile ?? { ...emptyProfile },
 })
 
 export function getMockUsers(): User[] {
@@ -84,6 +136,7 @@ export function loginWithCredentials(email: string, password: string): {
   authState.role = user.role
   authState.user = user
   syncProfileFromUser(user)
+  saveAuth(authState)
   return { ok: true }
 }
 
@@ -131,6 +184,7 @@ export function registerUser(payload: {
     name: newUser.name,
     email: newUser.email,
   }
+  saveAuth(authState)
 
   return { ok: true }
 }
@@ -140,6 +194,7 @@ export function updateProfile(payload: Partial<Profile>): void {
     ...authState.profile,
     ...payload,
   }
+  saveAuth(authState)
 }
 
 export function logout(): void {
@@ -147,4 +202,5 @@ export function logout(): void {
   authState.role = Role.CUSTOMER
   authState.user = null
   authState.profile = { ...emptyProfile }
+  saveAuth(authState)
 }
