@@ -70,4 +70,9 @@ export class Cart {
     this.items = this.items.filter((item) => item.product.id !== product.id)
     Cart.onChange?.()
   }
+
+  clear(): void {
+    this.items = []
+    Cart.onChange?.()
+  }
 }

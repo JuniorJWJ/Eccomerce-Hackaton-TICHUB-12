@@ -42,3 +42,8 @@ export const cartState = reactive({
 Cart.onChange = () => {
   saveCart(cartState.cart)
 }
+
+export function clearCart(): void {
+  cartState.cart.clear()
+  saveCart(cartState.cart)
+}

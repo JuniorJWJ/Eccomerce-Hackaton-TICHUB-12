@@ -1,5 +1,5 @@
 ﻿<script lang="ts" setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
@@ -7,6 +7,7 @@ import { Product } from '../model/product.model'
 
 const props = defineProps<{ product: Product }>()
 const emit = defineEmits<{ add: [Product] }>()
+const router = useRouter()
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -20,6 +21,10 @@ function handleAdd(): void {
   emit('add', props.product)
 }
 
+function goToDetails(): void {
+  router.push({ name: 'product-details', params: { id: props.product.id } })
+}
+
 function formatPrice(value: number): string {
   return currencyFormatter.format(value)
 }
@@ -30,7 +35,8 @@ const rating = Math.min(5, 3.5 + ratingSeed * 0.2)
 
 <template>
   <Card
-    class="group h-full overflow-hidden rounded-3xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80"
+    class="group h-full cursor-pointer overflow-hidden rounded-3xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80"
+    @click="goToDetails"
   >
     <template #content>
       <div class="flex h-full min-h-[300px] flex-col">
@@ -72,6 +78,7 @@ const rating = Math.min(5, 3.5 + ratingSeed * 0.2)
               <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Unidade</p>
             </div>
             <RouterLink
+              @click.stop
               class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600"
               :to="{ name: 'product-details', params: { id: product.id } }"
             >
@@ -87,7 +94,7 @@ const rating = Math.min(5, 3.5 + ratingSeed * 0.2)
               root: { class: 'justify-center rounded-xl' },
               label: { class: 'whitespace-nowrap text-sm font-semibold' },
             }"
-            @click="handleAdd"
+            @click.stop="handleAdd"
           />
         </div>
       </div>

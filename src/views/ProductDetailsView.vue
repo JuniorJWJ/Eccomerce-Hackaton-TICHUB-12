@@ -1,4 +1,5 @@
 ﻿<script lang="ts" setup>
+import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { getProductById } from '../state/products.store'
 import { cartState } from '../state/cart.store'
@@ -14,10 +15,44 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 
 const route = useRoute()
 const product = getProductById(Number(route.params.id)) as Product | undefined
+const shareUrl = computed(() => window.location.href)
+const qrUrl = computed(
+  () =>
+    `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+      shareUrl.value,
+    )}`,
+)
+const canShare = computed(() => typeof navigator !== 'undefined' && 'share' in navigator)
 
 function addToCart(): void {
   if (product) {
     cartState.cart.addItem(product, 1)
+  }
+}
+
+async function copyLink(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    alert('Link copiado para compartilhar.')
+  } catch {
+    alert('Não foi possível copiar o link. Copie manualmente.')
+  }
+}
+
+async function shareLink(): Promise<void> {
+  if (!canShare.value) {
+    await copyLink()
+    return
+  }
+
+  try {
+    await navigator.share({
+      title: product?.name ?? 'Produto',
+      text: 'Confira este produto',
+      url: shareUrl.value,
+    })
+  } catch {
+    // ignore cancel
   }
 }
 
@@ -78,9 +113,37 @@ function formatPrice(value: number): string {
                 :disabled="product.stock === 0"
                 @click="addToCart"
               />
+              <PButton
+                v-if="canShare"
+                label="Compartilhar"
+                icon="pi pi-share-alt"
+                severity="info"
+                @click="shareLink"
+              />
+              <PButton
+                label="Copiar link"
+                icon="pi pi-link"
+                severity="secondary"
+                @click="copyLink"
+              />
               <RouterLink class="text-sm text-slate-500 hover:text-slate-700" to="/">
                 Voltar para a vitrine
               </RouterLink>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+              <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Link compartilhável</p>
+              <p class="mt-2 break-all">{{ shareUrl }}</p>
+              <div class="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                <img
+                  :src="qrUrl"
+                  alt="QR code do produto"
+                  class="h-28 w-28 rounded-xl border border-slate-200 bg-white"
+                />
+                <p class="text-xs text-slate-500">
+                  Escaneie o QR code para abrir o produto no celular.
+                </p>
+              </div>
             </div>
           </div>
         </div>

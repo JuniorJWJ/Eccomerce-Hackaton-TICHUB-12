@@ -6,6 +6,7 @@ import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Textarea from 'primevue/textarea'
 import { authState, updateProfile } from '../state/auth.store'
+import { getOrdersByUser } from '../state/orders.store'
 
 const profile = computed(() => authState.profile)
 
@@ -25,6 +26,9 @@ const mockAvatars = [
 ]
 
 const saved = ref(false)
+const orders = computed(() =>
+  authState.user ? getOrdersByUser(authState.user.id) : [],
+)
 
 watch(profile, (next) => {
   name.value = next.name
@@ -178,6 +182,43 @@ function selectMockAvatar(avatar: string): void {
             Perfil atualizado com sucesso.
           </div>
         </div>
+      </template>
+    </Card>
+
+    <Card class="rounded-3xl border border-slate-200/70 bg-white/95 p-6 shadow-sm">
+      <template #content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Compras</p>
+            <h3 class="text-xl font-semibold">Seu histórico</h3>
+          </div>
+        </div>
+
+        <div v-if="orders.length" class="mt-6 space-y-4">
+          <div
+            v-for="order in orders"
+            :key="order.id"
+            class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-sm font-semibold text-slate-900">Pedido {{ order.id }}</p>
+              <p class="text-xs text-slate-500">
+                {{ new Date(order.createdAt).toLocaleDateString('pt-BR') }}
+              </p>
+            </div>
+            <ul class="mt-3 space-y-2 text-sm text-slate-600">
+              <li v-for="item in order.items" :key="item.productId">
+                {{ item.quantity }}x {{ item.name }} ·
+                {{ item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+              </li>
+            </ul>
+            <p class="mt-3 text-sm font-semibold text-slate-900">
+              Total: {{ order.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+            </p>
+          </div>
+        </div>
+
+        <p v-else class="mt-4 text-sm text-slate-500">Você ainda não realizou compras.</p>
       </template>
     </Card>
   </div>

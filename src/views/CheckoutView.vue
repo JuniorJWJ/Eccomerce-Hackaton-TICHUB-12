@@ -5,8 +5,9 @@ import PButton from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Textarea from 'primevue/textarea'
-import { cartState } from '../state/cart.store'
+import { cartState, clearCart } from '../state/cart.store'
 import { authState, updateProfile } from '../state/auth.store'
+import { createOrder } from '../state/orders.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -74,8 +75,10 @@ function handlePay(): void {
     zip: zip.value,
   })
 
-  orderId.value = `LP-${Math.floor(Math.random() * 90000 + 10000)}`
+  const createdOrder = createOrder()
+  orderId.value = createdOrder?.id ?? `LP-${Math.floor(Math.random() * 90000 + 10000)}`
   isPaid.value = true
+  clearCart()
   orderStepIndex.value = 0
   setTimeout(() => {
     orderStepIndex.value = 1

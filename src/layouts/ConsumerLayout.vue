@@ -41,32 +41,41 @@ export default defineComponent({
       cartState,
       authState,
       uiState,
+      Role,
     }
   },
   computed: {
     menuItems() {
-      return [
+      const items = [
         {
           label: 'Início',
           icon: 'pi pi-home',
           command: () => this.$router.push({ name: 'home' }),
         },
-        {
+      ]
+
+      if (this.authState.isAuthenticated) {
+        items.push({
           label: 'Finalizar compra',
           icon: 'pi pi-shopping-cart',
           command: () => this.goToCheckout(),
-        },
-        {
+        })
+        items.push({
           label: 'Perfil',
           icon: 'pi pi-user',
           command: () => this.goToProfile(),
-        },
-        {
+        })
+      }
+
+      if (this.authState.role === Role.ADMIN) {
+        items.push({
           label: 'Admin',
           icon: 'pi pi-shield',
           command: () => this.goToAdmin(),
-        },
-      ]
+        })
+      }
+
+      return items
     },
     breadcrumbItems(): BreadcrumbItem[] {
       const metaItems = (this.$route.meta.breadcrumb as BreadcrumbItem[] | undefined) ?? []
@@ -150,29 +159,39 @@ export default defineComponent({
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
         <Menubar
           :model="menuItems"
-          class="rounded-3xl border border-slate-200/70 bg-white/90 text-slate-900 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/90 dark:text-slate-100"
+          class="rounded-3xl border border-slate-200/70 bg-white/90 px-2 py-1 text-slate-900 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/90 dark:text-slate-100"
         >
           <template #start>
-            <div
-              class="flex cursor-pointer items-center gap-3 px-3 py-2"
-              role="button"
-              tabindex="0"
-              @click="$router.push({ name: 'home' })"
-              @keydown.enter.prevent="$router.push({ name: 'home' })"
-              @keydown.space.prevent="$router.push({ name: 'home' })"
-            >
+            <div class="flex items-center gap-4">
               <div
-                class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                class="flex cursor-pointer items-center gap-3 px-3 py-2"
+                role="button"
+                tabindex="0"
+                @click="$router.push({ name: 'home' })"
+                @keydown.enter.prevent="$router.push({ name: 'home' })"
+                @keydown.space.prevent="$router.push({ name: 'home' })"
               >
-                LP
+                <div
+                  class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                >
+                  LP
+                </div>
+                <div>
+                  <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-400">
+                    Loja PrimeVue
+                  </p>
+                  <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Ecommerce Studio
+                  </p>
+                </div>
               </div>
-              <div>
-                <p class="text-xs uppercase tracking-[0.2em] text-slate-400 dark:text-slate-400">
-                  Loja PrimeVue
-                </p>
-                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  Ecommerce Studio
-                </p>
+              <div class="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 lg:flex dark:border-slate-700 dark:bg-slate-900">
+                <i class="pi pi-search text-xs text-slate-400 dark:text-slate-500" />
+                <InputText
+                  v-model="uiState.searchTerm"
+                  placeholder="Buscar produtos"
+                  class="border-0 bg-transparent text-sm text-slate-900 shadow-none focus:ring-0 dark:text-slate-100"
+                />
               </div>
             </div>
           </template>
@@ -186,16 +205,6 @@ export default defineComponent({
                 aria-label="Abrir menu"
                 @click="toggleMobileMenu"
               />
-              <div
-                class="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 lg:flex dark:border-slate-700 dark:bg-slate-900"
-              >
-                <i class="pi pi-search text-xs text-slate-400 dark:text-slate-500" />
-                <InputText
-                  v-model="uiState.searchTerm"
-                  placeholder="Buscar produtos"
-                  class="border-0 bg-transparent text-sm text-slate-900 shadow-none focus:ring-0 dark:text-slate-100"
-                />
-              </div>
               <Card
                 class="hidden rounded-2xl border border-slate-200/70 bg-white/95 px-4 py-2 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/80 lg:block"
               >
@@ -225,7 +234,13 @@ export default defineComponent({
                 label="Criar conta"
                 @click="goToRegister"
               />
-              <PButton size="small" severity="info" label="Admin" @click="goToAdmin" />
+              <PButton
+                v-if="authState.role === Role.ADMIN"
+                size="small"
+                severity="info"
+                label="Admin"
+                @click="goToAdmin"
+              />
               <PButton
                 size="small"
                 :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
@@ -252,9 +267,24 @@ export default defineComponent({
             </div>
             <div class="mt-4 flex flex-col gap-2">
               <PButton label="Início" text @click="$router.push({ name: 'home' }); closeMobileMenu()" />
-              <PButton label="Finalizar compra" text @click="goToCheckout(); closeMobileMenu()" />
-              <PButton label="Perfil" text @click="goToProfile(); closeMobileMenu()" />
-              <PButton label="Admin" text @click="goToAdmin(); closeMobileMenu()" />
+              <PButton
+                v-if="authState.isAuthenticated"
+                label="Finalizar compra"
+                text
+                @click="goToCheckout(); closeMobileMenu()"
+              />
+              <PButton
+                v-if="authState.isAuthenticated"
+                label="Perfil"
+                text
+                @click="goToProfile(); closeMobileMenu()"
+              />
+              <PButton
+                v-if="authState.role === Role.ADMIN"
+                label="Admin"
+                text
+                @click="goToAdmin(); closeMobileMenu()"
+              />
               <PButton
                 :label="authButtonLabel"
                 text
