@@ -9,10 +9,18 @@ import { productState } from '../state/products.store'
 import { cartState } from '../state/cart.store'
 import { Product } from '../model/product.model'
 import { categories } from '../data/categories'
-import { uiState } from '../state/ui.store'
+import { uiState, showToast } from '../state/ui.store'
+import { orderState } from '../state/orders.store'
 
 function addToCart(product: Product): void {
+  const currentItem = cartState.cart.getItems().find((item) => item.product.id === product.id)
+  const currentQty = currentItem?.quantity ?? 0
+  if (product.stock <= 0 || currentQty >= product.stock) {
+    showToast('Estoque máximo atingido para este produto.', 'warning')
+    return
+  }
   cartState.cart.addItem(product, 1)
+  showToast('Produto adicionado ao carrinho.', 'success')
 }
 
 const selectedCategory = ref<number | null>(null)
@@ -62,6 +70,15 @@ const filteredProducts = computed(() => {
 
 const featuredProducts = computed(() => productState.products.slice(0, 5))
 const featuredIndex = ref(0)
+const deliveredProductIds = computed(() => {
+  const delivered = new Set<number>()
+  orderState.orders.forEach((order) => {
+    if (order.status === 'enviado') {
+      order.items.forEach((item) => delivered.add(item.productId))
+    }
+  })
+  return delivered
+})
 
 function nextFeatured(): void {
   featuredIndex.value = (featuredIndex.value + 1) % featuredProducts.value.length
@@ -75,6 +92,10 @@ function prevFeatured(): void {
 let intervalId: number | undefined
 
 onMounted(() => {
+  uiState.loadingProducts = true
+  setTimeout(() => {
+    uiState.loadingProducts = false
+  }, 600)
   if (featuredProducts.value.length > 1) {
     intervalId = window.setInterval(() => {
       nextFeatured()
@@ -304,13 +325,29 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <ProductCard
-          v-for="product in filteredProducts"
-          :key="product.id"
-          :product="product"
-          @add="addToCart"
+      <div
+        v-if="uiState.loadingProducts"
+        class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        <div
+          v-for="n in 8"
+          :key="n"
+          class="h-[320px] animate-pulse rounded-3xl border border-slate-200 bg-slate-100"
         />
+      </div>
+      <div
+        v-else
+        class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        <div v-for="product in filteredProducts" :key="product.id" class="relative">
+          <span
+            v-if="deliveredProductIds.has(product.id)"
+            class="absolute left-3 top-3 z-10 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white"
+          >
+            Enviado
+          </span>
+          <ProductCard :product="product" @add="addToCart" />
+        </div>
       </div>
     </section>
   </div>

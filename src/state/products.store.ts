@@ -3,6 +3,7 @@ import { Product } from '../model/product.model'
 import { seedProducts } from '../data/products'
 import { Category } from '../model/category.model'
 import { categoryState } from './categories.store'
+import { orderState } from './orders.store'
 
 const STORAGE_KEY = 'loja_products'
 
@@ -121,15 +122,57 @@ export function updateProduct(
   }
 
   const current = productState.products[index]
+  const hasOrders = orderState.orders.some((order) =>
+    order.items.some((item) => item.productId === id),
+  )
+  const safeStock = hasOrders ? Math.min(payload.stock, current.stock) : payload.stock
   const updated = new Product(
     id,
     payload.name,
     payload.price,
     payload.category,
-    payload.stock,
+    safeStock,
     payload.imageUrl?.trim() || current.imageUrl || createFallbackImage(payload.name, id),
   )
   productState.products.splice(index, 1, updated)
   saveProducts(productState.products)
   return updated
+}
+
+export function reduceStock(items: { productId: number; quantity: number }[]): void {
+  if (!items.length) {
+    return
+  }
+
+  items.forEach((item) => {
+    const product = productState.products.find((p) => p.id === item.productId)
+    if (!product) {
+      return
+    }
+    product.stock = Math.max(0, product.stock - item.quantity)
+  })
+
+  saveProducts(productState.products)
+}
+
+export function removeProduct(id: number): boolean {
+  const index = productState.products.findIndex((product) => product.id === id)
+  if (index === -1) {
+    return false
+  }
+
+  const product = productState.products[index]
+  const hasOrders = orderState.orders.some((order) =>
+    order.items.some((item) => item.productId === id),
+  )
+
+  if (hasOrders) {
+    product.stock = 0
+    saveProducts(productState.products)
+    return false
+  }
+
+  productState.products.splice(index, 1)
+  saveProducts(productState.products)
+  return true
 }

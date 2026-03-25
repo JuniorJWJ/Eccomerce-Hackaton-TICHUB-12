@@ -318,6 +318,19 @@ export default defineComponent({
         </main>
       </div>
     </div>
+
+    <div
+      v-if="uiState.toastMessage"
+      class="fixed bottom-6 right-6 z-50 rounded-2xl px-4 py-3 text-sm text-white shadow-lg"
+      :class="{
+        'bg-slate-900': uiState.toastType === 'info',
+        'bg-emerald-600': uiState.toastType === 'success',
+        'bg-amber-500': uiState.toastType === 'warning',
+        'bg-rose-600': uiState.toastType === 'error',
+      }"
+    >
+      {{ uiState.toastMessage }}
+    </div>
   </div>
 </template>
 

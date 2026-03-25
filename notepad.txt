@@ -1,0 +1,3 @@
+cupom:
+HACK10 = 10%
+PRIME20 = 20%

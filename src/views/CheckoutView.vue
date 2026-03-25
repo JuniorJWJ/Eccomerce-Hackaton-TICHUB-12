@@ -2,12 +2,12 @@
 import { computed, ref } from 'vue'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'
-import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Textarea from 'primevue/textarea'
 import { cartState, clearCart } from '../state/cart.store'
 import { authState, updateProfile } from '../state/auth.store'
-import { createOrder } from '../state/orders.store'
+import { createOrder, updateOrderStatus } from '../state/orders.store'
+import InputText from 'primevue/inputtext'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -15,7 +15,7 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 })
 
 const totalItems = computed(() => cartState.cart.getTotalItems())
-const totalPrice = computed(() => cartState.cart.getFinalPrice())
+const subtotal = computed(() => cartState.cart.getFinalPrice())
 
 const name = ref(authState.profile.name || authState.user?.name || '')
 const email = ref(authState.profile.email || authState.user?.email || '')
@@ -35,11 +35,35 @@ const orderId = ref('')
 const error = ref('')
 const orderSteps = ['Pedido confirmado', 'Separação', 'Enviado']
 const orderStepIndex = ref(0)
+const couponCode = ref('')
+const discountPercent = ref(0)
+const discountValue = computed(() => (subtotal.value * discountPercent.value) / 100)
+const totalDue = computed(() => Math.max(0, subtotal.value - discountValue.value))
 
 const isGuest = computed(() => !authState.isAuthenticated)
 
 function formatPrice(value: number): string {
   return currencyFormatter.format(value)
+}
+
+function applyCoupon(): void {
+  const code = couponCode.value.trim().toUpperCase()
+  if (!code) {
+    discountPercent.value = 0
+    error.value = ''
+    return
+  }
+
+  if (code === 'HACK10') {
+    discountPercent.value = 10
+    error.value = ''
+  } else if (code === 'PRIME20') {
+    discountPercent.value = 20
+    error.value = ''
+  } else {
+    discountPercent.value = 0
+    error.value = 'Cupom inválido.'
+  }
 }
 
 function handlePay(): void {
@@ -75,17 +99,25 @@ function handlePay(): void {
     zip: zip.value,
   })
 
-  const createdOrder = createOrder()
+  const createdOrder = createOrder({
+    discountCode: couponCode.value.trim() || undefined,
+    discountPercent: discountPercent.value || undefined,
+    totalAfter: totalDue.value,
+  })
   orderId.value = createdOrder?.id ?? `LP-${Math.floor(Math.random() * 90000 + 10000)}`
   isPaid.value = true
   clearCart()
   orderStepIndex.value = 0
-  setTimeout(() => {
-    orderStepIndex.value = 1
-  }, 2000)
-  setTimeout(() => {
-    orderStepIndex.value = 2
-  }, 4500)
+  if (createdOrder?.id) {
+    setTimeout(() => {
+      updateOrderStatus(createdOrder.id, 'separacao')
+      orderStepIndex.value = 1
+    }, 2000)
+    setTimeout(() => {
+      updateOrderStatus(createdOrder.id, 'enviado')
+      orderStepIndex.value = 2
+    }, 4500)
+  }
 }
 </script>
 
@@ -101,7 +133,7 @@ function handlePay(): void {
           <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
             <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Resumo</p>
             <p class="text-sm font-semibold text-slate-900">
-              {{ totalItems }} itens · {{ formatPrice(totalPrice) }}
+              {{ totalItems }} itens · {{ formatPrice(subtotal) }}
             </p>
           </div>
         </div>
@@ -154,7 +186,7 @@ function handlePay(): void {
             </div>
             <div class="grid gap-2">
               <label class="text-sm font-medium text-slate-600">E-mail</label>
-              <InputText v-model="email" placeholder="seuemail@exemplo.com" />
+              <InputText v-model="email" placeholder="seuemail@exemplo.com" disabled />
             </div>
             <div class="grid gap-2">
               <label class="text-sm font-medium text-slate-600">Telefone</label>
@@ -223,7 +255,23 @@ function handlePay(): void {
 
           <div class="flex flex-wrap items-center gap-3">
             <PButton label="Simular pagamento" icon="pi pi-check" @click="handlePay" />
-            <span class="text-sm text-slate-500">Total: {{ formatPrice(totalPrice) }}</span>
+            <span class="text-sm text-slate-500">Total: {{ formatPrice(totalDue) }}</span>
+          </div>
+
+          <div class="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+            <div class="grid gap-2">
+              <label class="text-sm font-medium text-slate-600">Cupom de desconto</label>
+              <InputText v-model="couponCode" placeholder="HACK10" />
+            </div>
+            <div class="flex items-end">
+              <PButton label="Aplicar cupom" severity="secondary" @click="applyCoupon" />
+            </div>
+          </div>
+
+          <div class="mt-2 text-sm text-slate-500">
+            <p>Subtotal: {{ formatPrice(subtotal) }}</p>
+            <p v-if="discountPercent">Desconto: -{{ discountPercent }}% ({{ formatPrice(discountValue) }})</p>
+            <p class="font-semibold text-slate-700">Total: {{ formatPrice(totalDue) }}</p>
           </div>
         </div>
       </template>

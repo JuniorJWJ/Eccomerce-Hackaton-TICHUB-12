@@ -6,7 +6,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
-import { productState } from '../../state/products.store'
+import { productState, removeProduct } from '../../state/products.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -40,6 +40,17 @@ export default defineComponent({
   methods: {
     formatPrice(value: number): string {
       return currencyFormatter.format(value)
+    },
+    handleDelete(productId: number): void {
+      const confirmed = window.confirm('Deseja remover este produto?')
+      if (!confirmed) {
+        return
+      }
+
+      const removed = removeProduct(productId)
+      if (!removed) {
+        alert('Produto possui pedidos associados. Estoque zerado.')
+      }
     },
   },
 })
@@ -124,6 +135,14 @@ export default defineComponent({
               <RouterLink :to="{ name: 'admin-product-edit', params: { id: data.id } }">
                 <PButton label="Editar" icon="pi pi-pencil" size="small" severity="secondary" />
               </RouterLink>
+              <PButton
+                class="ml-2"
+                label="Excluir"
+                icon="pi pi-trash"
+                size="small"
+                severity="danger"
+                @click="handleDelete(data.id)"
+              />
             </template>
           </Column>
         </DataTable>

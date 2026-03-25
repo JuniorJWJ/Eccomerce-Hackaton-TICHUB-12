@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { getProductById } from '../state/products.store'
 import { cartState } from '../state/cart.store'
+import { showToast } from '../state/ui.store'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
@@ -26,7 +27,14 @@ const canShare = computed(() => typeof navigator !== 'undefined' && 'share' in n
 
 function addToCart(): void {
   if (product) {
+    const currentItem = cartState.cart.getItems().find((item) => item.product.id === product.id)
+    const currentQty = currentItem?.quantity ?? 0
+    if (product.stock <= 0 || currentQty >= product.stock) {
+      showToast('Estoque máximo atingido para este produto.', 'warning')
+      return
+    }
     cartState.cart.addItem(product, 1)
+    showToast('Produto adicionado ao carrinho.', 'success')
   }
 }
 

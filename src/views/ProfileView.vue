@@ -1,5 +1,5 @@
 ﻿<script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Card from 'primevue/card'
 import PButton from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -29,6 +29,20 @@ const saved = ref(false)
 const orders = computed(() =>
   authState.user ? getOrdersByUser(authState.user.id) : [],
 )
+const loadingOrders = ref(true)
+
+onMounted(() => {
+  setTimeout(() => {
+    loadingOrders.value = false
+  }, 600)
+})
+
+function formatStatus(status: string): string {
+  if (status === 'confirmed') return 'Pedido confirmado'
+  if (status === 'separacao') return 'Separação'
+  if (status === 'enviado') return 'Enviado'
+  return status
+}
 
 watch(profile, (next) => {
   name.value = next.name
@@ -104,15 +118,15 @@ function selectMockAvatar(avatar: string): void {
     <Card class="rounded-3xl border border-slate-200/70 bg-white/95 p-6 shadow-sm">
       <template #content>
         <div class="grid gap-6">
-          <div class="grid gap-4 md:grid-cols-2">
-            <div class="grid gap-2">
-              <label class="text-sm font-medium text-slate-600">Nome completo</label>
-              <InputText v-model="name" placeholder="Seu nome" />
-            </div>
-            <div class="grid gap-2">
-              <label class="text-sm font-medium text-slate-600">E-mail</label>
-              <InputText v-model="email" placeholder="seuemail@exemplo.com" />
-            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+              <div class="grid gap-2">
+                <label class="text-sm font-medium text-slate-600">Nome completo</label>
+                <InputText v-model="name" placeholder="Seu nome" />
+              </div>
+              <div class="grid gap-2">
+                <label class="text-sm font-medium text-slate-600">E-mail</label>
+                <InputText v-model="email" placeholder="seuemail@exemplo.com" disabled />
+              </div>
             <div class="grid gap-2">
               <label class="text-sm font-medium text-slate-600">Telefone</label>
               <InputMask v-model="phone" mask="(99) 99999-9999" placeholder="(11) 99999-9999" />
@@ -194,7 +208,14 @@ function selectMockAvatar(avatar: string): void {
           </div>
         </div>
 
-        <div v-if="orders.length" class="mt-6 space-y-4">
+        <div v-if="loadingOrders" class="mt-6 grid gap-3">
+          <div
+            v-for="n in 2"
+            :key="n"
+            class="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-100"
+          />
+        </div>
+        <div v-else-if="orders.length" class="mt-6 space-y-4">
           <div
             v-for="order in orders"
             :key="order.id"
@@ -210,11 +231,24 @@ function selectMockAvatar(avatar: string): void {
               <li v-for="item in order.items" :key="item.productId">
                 {{ item.quantity }}x {{ item.name }} ·
                 {{ item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+                <span class="ml-2 text-xs text-slate-400">({{ formatStatus(item.status) }})</span>
               </li>
             </ul>
             <p class="mt-3 text-sm font-semibold text-slate-900">
-              Total: {{ order.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+              Total: {{ order.totalAfter.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
             </p>
+            <p class="mt-2 text-xs text-slate-500">
+              Status atual: {{ formatStatus(order.status) }}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-for="step in order.statusHistory"
+                :key="step.at"
+                class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
+              >
+                {{ formatStatus(step.status) }}
+              </span>
+            </div>
           </div>
         </div>
 
