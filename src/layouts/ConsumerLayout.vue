@@ -37,6 +37,7 @@ export default defineComponent({
       isDark: false,
       isMobileMenuOpen: false,
       isUserMenuOpen: false,
+      isCartOpen: false,
       cartState,
       authState,
       uiState,
@@ -129,6 +130,12 @@ export default defineComponent({
     closeUserMenu(): void {
       this.isUserMenuOpen = false
     },
+    toggleCart(): void {
+      this.isCartOpen = !this.isCartOpen
+    },
+    closeCart(): void {
+      this.isCartOpen = false
+    },
     formatPrice(value: number): string {
       return currencyFormatter.format(value)
     },
@@ -204,7 +211,12 @@ export default defineComponent({
                 @click="toggleMobileMenu"
               />
               <div
-                class="hidden items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-100 lg:flex"
+                class="hidden cursor-pointer items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:border-slate-700 lg:flex"
+                role="button"
+                tabindex="0"
+                @click="toggleCart"
+                @keydown.enter.prevent="toggleCart"
+                @keydown.space.prevent="toggleCart"
               >
                 <span
                   class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
@@ -328,16 +340,28 @@ export default defineComponent({
           class="rounded-2xl border border-slate-200/70 bg-white/80 px-4 py-2 text-sm shadow-sm"
         />
 
-        <main
-          class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px]"
-        >
-          <section>
-            <RouterView />
-          </section>
-          <section class="lg:justify-self-end lg:w-[360px] xl:w-[400px]">
-            <CartPanel :cart="cartState.cart" />
-          </section>
+        <main>
+          <RouterView />
         </main>
+      </div>
+    </div>
+
+    <div
+      v-if="isCartOpen"
+      class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm"
+      @click="closeCart"
+    >
+      <div
+        class="absolute right-4 top-4 h-[calc(100vh-32px)] w-[360px] max-w-[90vw] overflow-hidden rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl"
+        @click.stop
+      >
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-semibold text-slate-900">Seu carrinho</p>
+          <PButton icon="pi pi-times" text @click="closeCart" />
+        </div>
+        <div class="mt-4 max-h-[calc(100vh-120px)] overflow-y-auto">
+          <CartPanel :cart="cartState.cart" />
+        </div>
       </div>
     </div>
 

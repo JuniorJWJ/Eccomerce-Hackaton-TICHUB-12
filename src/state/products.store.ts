@@ -38,19 +38,26 @@ function loadProducts(): Product[] {
 
   try {
     const parsed = JSON.parse(raw) as StoredProduct[]
+    const seedById = new Map(seedProducts.map((product) => [product.id, product]))
     return parsed
       .map((item, index) => {
         const category = categoryState.categories.find((cat) => cat.id === item.categoryId)
         if (!category) {
           return null
         }
+        const seedImage = seedById.get(item.id)?.imageUrl
+        const normalizedImage = item.imageUrl?.trim()
+        const imageUrl =
+          normalizedImage && !normalizedImage.startsWith('data:image/svg')
+            ? normalizedImage
+            : seedImage || createFallbackImage(item.name, index)
         return new Product(
           item.id,
           item.name,
           item.price,
           category,
           item.stock,
-          item.imageUrl?.trim() || createFallbackImage(item.name, index),
+          imageUrl,
         )
       })
       .filter((item): item is Product => item !== null)
