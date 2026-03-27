@@ -15,9 +15,9 @@ import { uiState, showToast } from '../state/ui.store'
 import { orderState } from '../state/orders.store'
 
 function addToCart(product: Product, options?: { silent?: boolean }): void {
-  const currentItem = cartState.cart.getItems().find(
-    (item: CartItem) => item.product.id === product.id,
-  )
+  const currentItem = cartState.cart
+    .getItems()
+    .find((item: CartItem) => item.product.id === product.id)
   const currentQty = currentItem?.quantity ?? 0
   if (product.stock <= 0 || currentQty >= product.stock) {
     if (!options?.silent) {
@@ -158,8 +158,8 @@ onBeforeUnmount(() => {
             Monte seu carrinho com as escolhas certas
           </h1>
           <p class="mt-3 max-w-xl text-sm text-slate-500">
-            Produtos selecionados, entrega rápida e uma experiência de compra organizada do início ao
-            fim.
+            Produtos selecionados, entrega rápida e uma experiência de compra organizada do início
+            ao fim.
           </p>
           <div class="mt-6 flex flex-wrap items-center gap-3">
             <a
@@ -170,13 +170,15 @@ onBeforeUnmount(() => {
             </a>
             <a
               href="#ofertas"
-              class="rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-600"
+              class="rounded-full border border-slate-400 px-5 py-2 text-sm font-semibold text-slate-600"
             >
               Ver ofertas
             </a>
           </div>
         </div>
-        <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white shadow-lg">
+        <div
+          class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white shadow-lg"
+        >
           <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Destaque</p>
           <h2 class="mt-3 text-2xl font-semibold">Kit Performance</h2>
           <p class="mt-2 text-sm text-slate-200">
@@ -202,7 +204,7 @@ onBeforeUnmount(() => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Destaques</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-900">Carrossel de novidades</h2>
+          <h2 class="mt-2 text-2xl font-semibold text-slate-400">Carrossel de novidades</h2>
         </div>
         <div class="flex items-center gap-2">
           <button
@@ -231,7 +233,9 @@ onBeforeUnmount(() => {
           </div>
           <div class="flex flex-col justify-between gap-4">
             <div>
-              <p class="text-xs uppercase tracking-[0.2em] text-slate-400">{{ featuredProducts[featuredIndex].category.getDisplayName() }}</p>
+              <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
+                {{ featuredProducts[featuredIndex].category.getDisplayName() }}
+              </p>
               <h3 class="mt-2 text-2xl font-semibold text-slate-900">
                 {{ featuredProducts[featuredIndex].name }}
               </h3>
@@ -248,7 +252,10 @@ onBeforeUnmount(() => {
               </button>
               <RouterLink
                 class="text-sm font-semibold text-slate-600"
-                :to="{ name: 'product-details', params: { id: featuredProducts[featuredIndex].id } }"
+                :to="{
+                  name: 'product-details',
+                  params: { id: featuredProducts[featuredIndex].id },
+                }"
               >
                 Ver detalhes
               </RouterLink>
@@ -262,7 +269,7 @@ onBeforeUnmount(() => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Ofertas</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-900">Combos e promoções</h2>
+          <h2 class="mt-2 text-2xl font-semibold text-slate-400">Combos e promoções</h2>
         </div>
       </div>
 
@@ -289,7 +296,7 @@ onBeforeUnmount(() => {
     <section id="kit" class="space-y-6">
       <div>
         <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Kit especial</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-900">Seleção Performance</h2>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-400">Seleção Performance</h2>
         <p class="mt-2 text-sm text-slate-500">
           Itens recomendados para quem quer resultado rápido.
         </p>
@@ -304,7 +311,9 @@ onBeforeUnmount(() => {
         >
           <p class="text-sm font-semibold text-slate-900">{{ item.title }}</p>
           <p class="text-sm text-slate-500">{{ item.price }}</p>
-          <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-600">
+          <p
+            class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-600"
+          >
             Adicionar ao carrinho
           </p>
         </button>
@@ -315,7 +324,7 @@ onBeforeUnmount(() => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Vitrine</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-900">Produtos em destaque</h2>
+          <h2 class="mt-2 text-2xl font-semibold text-slate-400">Produtos em destaque</h2>
           <p class="mt-2 text-sm text-slate-500">
             {{ filteredProducts.length }} item(ns) encontrados.
           </p>
@@ -323,9 +332,11 @@ onBeforeUnmount(() => {
         <div class="flex flex-wrap gap-2">
           <button
             class="rounded-full border px-4 py-1 text-xs font-semibold"
-            :class="selectedCategory === null
-              ? 'border-slate-900 bg-slate-900 text-white'
-              : 'border-slate-200 bg-white text-slate-500'"
+            :class="
+              selectedCategory === null
+                ? 'border-slate-900 bg-slate-900 text-white'
+                : 'border-slate-200 bg-white text-slate-500'
+            "
             @click="toggleCategory(null)"
           >
             Todos
@@ -334,9 +345,11 @@ onBeforeUnmount(() => {
             v-for="category in categories"
             :key="category.id"
             class="rounded-full border px-4 py-1 text-xs font-semibold"
-            :class="selectedCategory === category.id
-              ? 'border-slate-900 bg-slate-900 text-white'
-              : 'border-slate-200 bg-white text-slate-500'"
+            :class="
+              selectedCategory === category.id
+                ? 'border-slate-900 bg-slate-900 text-white'
+                : 'border-slate-200 bg-white text-slate-500'
+            "
             @click="toggleCategory(category.id)"
           >
             {{ category.title }}
@@ -344,7 +357,9 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-4">
+      <div
+        class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-4"
+      >
         <div class="grid gap-2">
           <label class="text-xs uppercase tracking-[0.2em] text-slate-400">Preço mínimo</label>
           <InputNumber v-model="uiState.minPrice" mode="currency" currency="BRL" locale="pt-BR" />
@@ -355,7 +370,12 @@ onBeforeUnmount(() => {
         </div>
         <div class="grid gap-2">
           <label class="text-xs uppercase tracking-[0.2em] text-slate-400">Ordenar por</label>
-          <Dropdown v-model="uiState.sortBy" :options="sortOptions" optionLabel="label" optionValue="value" />
+          <Dropdown
+            v-model="uiState.sortBy"
+            :options="sortOptions"
+            optionLabel="label"
+            optionValue="value"
+          />
         </div>
         <div class="flex items-center gap-2 pt-6">
           <Checkbox v-model="uiState.inStockOnly" :binary="true" inputId="inStockOnly" />
@@ -373,10 +393,7 @@ onBeforeUnmount(() => {
           class="h-[320px] animate-pulse rounded-3xl border border-slate-200 bg-slate-100"
         />
       </div>
-      <div
-        v-else
-        class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      >
+      <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div v-for="product in filteredProducts" :key="product.id" class="relative">
           <span
             v-if="deliveredProductIds.has(product.id)"
