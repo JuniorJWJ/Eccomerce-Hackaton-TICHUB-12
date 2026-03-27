@@ -340,6 +340,13 @@ export default defineComponent({
           class="rounded-2xl border border-slate-200/70 bg-white/80 px-4 py-2 text-sm shadow-sm"
         />
 
+        <div
+          v-if="uiState.adminPreviewMode && authState.role === Role.ADMIN"
+          class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700"
+        >
+          Modo vitrine ativo: você está vendo a loja como um cliente.
+        </div>
+
         <main>
           <RouterView />
         </main>

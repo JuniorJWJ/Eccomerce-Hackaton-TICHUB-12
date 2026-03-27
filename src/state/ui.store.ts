@@ -13,6 +13,7 @@ export const uiState = reactive({
   loadingProducts: false,
   toastMessage: '',
   toastType: 'info' as ToastType,
+  adminPreviewMode: false,
 })
 
 let toastTimer: number | undefined

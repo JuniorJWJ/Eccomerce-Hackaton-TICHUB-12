@@ -3,6 +3,8 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import PMenu from 'primevue/menu'
 import Breadcrumb from 'primevue/breadcrumb'
 import PButton from 'primevue/button'
+import InputSwitch from 'primevue/inputswitch'
+import { uiState } from '../state/ui.store'
 import { authState, logout } from '../state/auth.store'
 
 type BreadcrumbItem = {
@@ -53,6 +55,15 @@ function logoutAdmin(): void {
           <h1 class="text-xl font-semibold">Painel de Gestão</h1>
           <p class="mt-1 text-xs text-slate-400">
             Usuário: {{ authState.user?.name ?? authState.role }}
+          </p>
+        </div>
+        <div class="mb-6 rounded-2xl border border-slate-800/60 bg-slate-950/40 p-3">
+          <div class="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
+            <span>Modo vitrine</span>
+            <InputSwitch v-model="uiState.adminPreviewMode" />
+          </div>
+          <p class="mt-2 text-xs text-slate-400">
+            Veja como o cliente enxerga a vitrine e detalhes.
           </p>
         </div>
         <PMenu :model="menuItems" class="border-0 bg-transparent text-slate-100" />

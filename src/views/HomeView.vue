@@ -187,10 +187,12 @@ onBeforeUnmount(() => {
 
       <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div v-if="featuredProducts.length" class="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <div
-            class="flex h-52 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-100 via-white to-slate-200 text-4xl font-semibold text-slate-500"
-          >
-            {{ featuredProducts[featuredIndex].name.slice(0, 2).toUpperCase() }}
+          <div class="h-52 overflow-hidden rounded-3xl bg-slate-100 shadow-inner">
+            <img
+              :src="featuredProducts[featuredIndex].imageUrl"
+              :alt="featuredProducts[featuredIndex].name"
+              class="h-full w-full object-cover"
+            />
           </div>
           <div class="flex flex-col justify-between gap-4">
             <div>

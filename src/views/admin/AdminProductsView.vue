@@ -7,6 +7,7 @@ import Column from 'primevue/column'
 import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
 import { productState, removeProduct } from '../../state/products.store'
+import { uiState } from '../../state/ui.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -26,6 +27,7 @@ export default defineComponent({
   data() {
     return {
       productState,
+      uiState,
     }
   },
   computed: {
@@ -68,12 +70,20 @@ export default defineComponent({
               Controle estoque, cadastre novos itens e edite produtos existentes.
             </p>
           </div>
-          <PButton
-            label="Cadastrar produto"
-            icon="pi pi-plus"
-            class="self-start"
-            @click="$router.push({ name: 'admin-product-new' })"
-          />
+          <div class="flex flex-wrap gap-3">
+            <PButton
+              label="Ver vitrine"
+              icon="pi pi-eye"
+              severity="secondary"
+              @click="uiState.adminPreviewMode = true; $router.push({ name: 'home' })"
+            />
+            <PButton
+              label="Cadastrar produto"
+              icon="pi pi-plus"
+              class="self-start"
+              @click="$router.push({ name: 'admin-product-new' })"
+            />
+          </div>
         </div>
 
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">

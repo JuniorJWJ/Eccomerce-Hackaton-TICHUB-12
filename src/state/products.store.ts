@@ -9,6 +9,17 @@ const STORAGE_KEY = 'loja_products'
 
 const colors = ['%23FBD38D', '%239DD7F7', '%239AE6B4', '%23F8B4B4', '%23C4B5FD']
 
+const legacyImages = new Set([
+  'https://mixnutri.fbitsstatic.net/img/p/whey-100-concentrado-chocolate-ice-cream-pote-900g-pronabol-80433/268885-2.jpg?w=674&h=674&v=202512121548',
+  'https://cdn.pixabay.com/photo/2022/09/16/13/44/bottle-7458649_1280.jpg',
+  'https://cdn.pixabay.com/photo/2021/03/27/05/10/pills-6127501_640.jpg',
+  'https://images.unsplash.com/photo-1770932588917-42c0ecd3f210?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+  'https://images.unsplash.com/photo-1761896902115-49793a359daf?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+  'https://cdn.pixabay.com/photo/2014/09/24/20/36/gaming-459544_1280.jpg',
+  'https://images.unsplash.com/photo-1578874763335-4d21bab88a99?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+  'https://images.unsplash.com/photo-1770736261634-5f93cb918191?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+])
+
 function createFallbackImage(name: string, seed = 0): string {
   const initials = name
     .split(' ')
@@ -47,8 +58,9 @@ function loadProducts(): Product[] {
         }
         const seedImage = seedById.get(item.id)?.imageUrl
         const normalizedImage = item.imageUrl?.trim()
+        const shouldReplace = normalizedImage ? legacyImages.has(normalizedImage) : true
         const imageUrl =
-          normalizedImage && !normalizedImage.startsWith('data:image/svg')
+          normalizedImage && !normalizedImage.startsWith('data:image/svg') && !shouldReplace
             ? normalizedImage
             : seedImage || createFallbackImage(item.name, index)
         return new Product(
