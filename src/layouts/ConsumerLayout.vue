@@ -288,6 +288,12 @@ function logoutUser(): void {
             </div>
             <div class="mt-4 flex flex-col gap-2">
               <PButton
+                label="Carrinho"
+                text
+                icon="pi pi-shopping-cart"
+                @click="toggleCart(); closeMobileMenu()"
+              />
+              <PButton
                 v-if="authState.isAuthenticated"
                 label="Finalizar compra"
                 text
