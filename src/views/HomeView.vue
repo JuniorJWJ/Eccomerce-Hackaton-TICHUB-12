@@ -14,17 +14,48 @@ import { categories } from '../data/categories'
 import { uiState, showToast } from '../state/ui.store'
 import { orderState } from '../state/orders.store'
 
-function addToCart(product: Product): void {
+function addToCart(product: Product, options?: { silent?: boolean }): void {
   const currentItem = cartState.cart.getItems().find(
     (item: CartItem) => item.product.id === product.id,
   )
   const currentQty = currentItem?.quantity ?? 0
   if (product.stock <= 0 || currentQty >= product.stock) {
-    showToast('Estoque máximo atingido para este produto.', 'warning')
+    if (!options?.silent) {
+      showToast('Estoque máximo atingido para este produto.', 'warning')
+    }
     return
   }
   cartState.cart.addItem(product, 1)
-  showToast('Produto adicionado ao carrinho.', 'success')
+  if (!options?.silent) {
+    showToast('Produto adicionado ao carrinho.', 'success')
+  }
+}
+
+const kitItems = [
+  { title: 'Whey + Creatina', price: 'R$ 139,90', matches: ['whey', 'creatina'] },
+  { title: 'Pré-treino + BCAA', price: 'R$ 119,90', matches: ['pré-treino', 'pre-treino', 'bcaa'] },
+  { title: 'Camiseta + Bermuda', price: 'R$ 129,90', matches: ['camiseta', 'bermuda'] },
+]
+
+function addKitToCart(matches: string[]): void {
+  let added = 0
+  matches.forEach((match) => {
+    const product = productState.products.find((item: Product) =>
+      item.name.toLowerCase().includes(match),
+    )
+    if (!product) {
+      return
+    }
+    addToCart(product, { silent: true })
+    added += 1
+  })
+
+  if (added === 0) {
+    showToast('Produtos do kit não encontrados.', 'warning')
+    return
+  }
+
+  showToast('Kit adicionado ao carrinho.', 'success')
 }
 
 const selectedCategory = ref<number | null>(null)
@@ -264,18 +295,19 @@ onBeforeUnmount(() => {
         </p>
       </div>
       <div class="grid gap-4 md:grid-cols-3">
-        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-semibold">Whey + Creatina</p>
-          <p class="text-sm text-slate-500">R$ 139,90</p>
-        </div>
-        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-semibold">Pré-treino + BCAA</p>
-          <p class="text-sm text-slate-500">R$ 119,90</p>
-        </div>
-        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-semibold">Camiseta + Bermuda</p>
-          <p class="text-sm text-slate-500">R$ 129,90</p>
-        </div>
+        <button
+          v-for="item in kitItems"
+          :key="item.title"
+          type="button"
+          class="group rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+          @click="addKitToCart(item.matches)"
+        >
+          <p class="text-sm font-semibold text-slate-900">{{ item.title }}</p>
+          <p class="text-sm text-slate-500">{{ item.price }}</p>
+          <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 group-hover:text-slate-600">
+            Adicionar ao carrinho
+          </p>
+        </button>
       </div>
     </section>
 

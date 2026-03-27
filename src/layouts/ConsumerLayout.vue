@@ -351,14 +351,14 @@ function logoutUser(): void {
       @click="closeCart"
     >
       <div
-        class="absolute right-4 top-4 h-[calc(100vh-32px)] w-[360px] max-w-[90vw] overflow-hidden rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl"
+        class="absolute right-4 top-4 flex h-[calc(100vh-32px)] w-[360px] max-w-[90vw] flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl"
         @click.stop
       >
         <div class="flex items-center justify-between">
           <p class="text-sm font-semibold text-slate-900">Seu carrinho</p>
           <PButton icon="pi pi-times" text @click="closeCart" />
         </div>
-        <div class="mt-4 max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div class="mt-4 flex-1 min-h-0 overflow-y-auto">
           <CartPanel :cart="cartState.cart" />
         </div>
       </div>

@@ -94,7 +94,7 @@ function formatPrice(value: number): string {
 </script>
 
 <template>
-  <section class="space-y-4">
+  <section class="flex h-full flex-col gap-4">
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-xl font-semibold">Carrinho</h2>
@@ -142,7 +142,7 @@ function formatPrice(value: number): string {
       v-else
       :value="cartItems"
       layout="list"
-      class="max-h-[520px] overflow-y-scroll pr-2 bg-transparent"
+      class="flex-1 min-h-0 overflow-y-auto pr-2 bg-transparent"
       :pt="{
         root: { class: 'bg-transparent border-0' },
         content: { class: 'bg-transparent p-0' },
