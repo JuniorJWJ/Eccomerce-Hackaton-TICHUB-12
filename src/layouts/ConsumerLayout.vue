@@ -219,6 +219,13 @@ function logoutUser(): void {
                   class="absolute right-0 top-12 z-50 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg"
                 >
                   <PButton
+                    v-if="authState.isAuthenticated"
+                    label="Meus pedidos"
+                    text
+                    class="w-full justify-start"
+                    @click="router.push({ name: 'orders' }); closeUserMenu()"
+                  />
+                  <PButton
                     v-if="!authState.isAuthenticated"
                     label="Entrar"
                     text
@@ -285,6 +292,12 @@ function logoutUser(): void {
                 label="Finalizar compra"
                 text
                 @click="goToCheckout(); closeMobileMenu()"
+              />
+              <PButton
+                v-if="authState.isAuthenticated"
+                label="Meus pedidos"
+                text
+                @click="router.push({ name: 'orders' }); closeMobileMenu()"
               />
               <PButton
                 v-if="authState.isAuthenticated"

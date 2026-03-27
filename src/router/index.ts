@@ -9,6 +9,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import MyOrdersView from '../views/MyOrdersView.vue'
 import AdminProductsView from '../views/admin/AdminProductsView.vue'
 import AdminProductFormView from '../views/admin/AdminProductFormView.vue'
 import AdminReportsView from '../views/admin/AdminReportsView.vue'
@@ -61,6 +62,18 @@ const router = createRouter({
             breadcrumb: [
               { label: 'Início', to: { name: 'home' } },
               { label: 'Perfil' },
+            ],
+          },
+        },
+        {
+          path: 'pedidos',
+          name: 'orders',
+          component: MyOrdersView,
+          meta: {
+            requiresAuth: true,
+            breadcrumb: [
+              { label: 'Início', to: { name: 'home' } },
+              { label: 'Meus pedidos' },
             ],
           },
         },
