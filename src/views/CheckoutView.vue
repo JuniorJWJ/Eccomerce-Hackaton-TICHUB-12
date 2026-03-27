@@ -8,6 +8,7 @@ import { cartState, clearCart } from '../state/cart.store'
 import { authState, updateProfile } from '../state/auth.store'
 import { createOrder, updateOrderStatus } from '../state/orders.store'
 import InputText from 'primevue/inputtext'
+import { showToast } from '../state/ui.store'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -38,7 +39,10 @@ const orderStepIndex = ref(0)
 const couponCode = ref('')
 const discountPercent = ref(0)
 const discountValue = computed(() => (subtotal.value * discountPercent.value) / 100)
-const totalDue = computed(() => Math.max(0, subtotal.value - discountValue.value))
+const freightValue = ref(0)
+const freightDays = ref<number | null>(null)
+const totalDue = computed(() => Math.max(0, subtotal.value - discountValue.value + freightValue.value))
+const freightMessage = ref('')
 
 const isGuest = computed(() => !authState.isAuthenticated)
 
@@ -64,6 +68,33 @@ function applyCoupon(): void {
     discountPercent.value = 0
     error.value = 'Cupom inválido.'
   }
+}
+
+function calculateFreight(): void {
+  const digits = (zip.value || '').replace(/\D/g, '')
+  if (digits.length !== 8) {
+    error.value = 'Informe um CEP válido para calcular o frete.'
+    freightValue.value = 0
+    freightDays.value = null
+    freightMessage.value = 'Informe um CEP válido para calcular o frete.'
+    showToast('Informe um CEP válido para calcular o frete.', 'warning')
+    return
+  }
+
+  error.value = ''
+  const region = Number(digits.charAt(0))
+  if (region <= 2) {
+    freightValue.value = 12
+    freightDays.value = 2
+  } else if (region <= 5) {
+    freightValue.value = 18
+    freightDays.value = 4
+  } else {
+    freightValue.value = 24
+    freightDays.value = 6
+  }
+  freightMessage.value = `Frete calculado: ${formatPrice(freightValue.value)} · ${freightDays.value} dias úteis`
+  showToast('Frete calculado com sucesso.', 'success')
 }
 
 function handlePay(): void {
@@ -194,26 +225,30 @@ function handlePay(): void {
             </div>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-            <div class="grid gap-2">
-              <label class="text-sm font-medium text-slate-600">Endereço</label>
-              <Textarea v-model="address" rows="3" placeholder="Rua, número e complemento" />
-            </div>
-            <div class="grid gap-4">
-              <div class="grid gap-2">
-                <label class="text-sm font-medium text-slate-600">Cidade</label>
-                <InputText v-model="city" placeholder="Cidade" />
-              </div>
-              <div class="grid gap-2">
-                <label class="text-sm font-medium text-slate-600">Estado</label>
-                <InputText v-model="state" placeholder="UF" />
-              </div>
-              <div class="grid gap-2">
-                <label class="text-sm font-medium text-slate-600">CEP</label>
-                <InputMask v-model="zip" mask="99999-999" placeholder="00000-000" />
-              </div>
-            </div>
+        <div class="grid gap-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <div class="grid gap-2">
+            <label class="text-sm font-medium text-slate-600">Endereço</label>
+            <Textarea v-model="address" rows="3" placeholder="Rua, número e complemento" />
           </div>
+          <div class="grid gap-4">
+            <div class="grid gap-2">
+              <label class="text-sm font-medium text-slate-600">Cidade</label>
+              <InputText v-model="city" placeholder="Cidade" />
+            </div>
+            <div class="grid gap-2">
+              <label class="text-sm font-medium text-slate-600">Estado</label>
+              <InputText v-model="state" placeholder="UF" />
+            </div>
+            <div class="grid gap-2">
+              <label class="text-sm font-medium text-slate-600">CEP</label>
+              <InputMask v-model="zip" mask="99999-999" placeholder="00000-000" />
+            </div>
+            <div class="flex items-end">
+              <PButton label="Calcular frete" severity="secondary" @click="calculateFreight" />
+            </div>
+            <p v-if="freightMessage" class="text-xs text-slate-500">{{ freightMessage }}</p>
+          </div>
+        </div>
 
         </div>
       </template>
@@ -271,6 +306,10 @@ function handlePay(): void {
           <div class="mt-2 text-sm text-slate-500">
             <p>Subtotal: {{ formatPrice(subtotal) }}</p>
             <p v-if="discountPercent">Desconto: -{{ discountPercent }}% ({{ formatPrice(discountValue) }})</p>
+            <p v-if="freightValue">
+              Frete: {{ formatPrice(freightValue) }}
+              <span v-if="freightDays">· {{ freightDays }} dias úteis</span>
+            </p>
             <p class="font-semibold text-slate-700">Total: {{ formatPrice(totalDue) }}</p>
           </div>
         </div>

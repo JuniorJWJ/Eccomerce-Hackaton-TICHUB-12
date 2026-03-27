@@ -155,7 +155,7 @@ export default defineComponent({
 <template>
   <div :class="{ dark: isDark }">
     <div
-      class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100"
+      class="min-h-screen bg-gradient-to-br from-[#f7f3ef] via-[#f5f6fb] to-[#eef2ff] text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100"
     >
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
         <Menubar
