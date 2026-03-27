@@ -1,4 +1,4 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 
 export type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'stock-desc'
 

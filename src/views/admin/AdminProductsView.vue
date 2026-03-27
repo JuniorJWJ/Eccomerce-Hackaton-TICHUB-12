@@ -1,6 +1,6 @@
-﻿<script lang="ts">
-import { defineComponent } from 'vue'
-import { RouterLink } from 'vue-router'
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -8,54 +8,37 @@ import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
 import { productState, removeProduct } from '../../state/products.store'
 import { uiState } from '../../state/ui.store'
+import type { Product } from '../../model/product.model'
+
+const router = useRouter()
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
 })
 
-export default defineComponent({
-  name: 'AdminProductsView',
-  components: {
-    Card,
-    DataTable,
-    Column,
-    PButton,
-    Tag,
-    RouterLink,
-  },
-  data() {
-    return {
-      productState,
-      uiState,
-    }
-  },
-  computed: {
-    outOfStockCount(): number {
-      return this.productState.products.filter((product) => product.stock === 0).length
-    },
-    lowStockCount(): number {
-      return this.productState.products.filter((product) => product.stock > 0 && product.stock <= 3)
-        .length
-    },
-  },
-  methods: {
-    formatPrice(value: number): string {
-      return currencyFormatter.format(value)
-    },
-    handleDelete(productId: number): void {
-      const confirmed = window.confirm('Deseja remover este produto?')
-      if (!confirmed) {
-        return
-      }
+const outOfStockCount = computed(() =>
+  productState.products.filter((product: Product) => product.stock === 0).length,
+)
+const lowStockCount = computed(() =>
+  productState.products.filter((product: Product) => product.stock > 0 && product.stock <= 3).length,
+)
 
-      const removed = removeProduct(productId)
-      if (!removed) {
-        alert('Produto possui pedidos associados. Estoque zerado.')
-      }
-    },
-  },
-})
+function formatPrice(value: number): string {
+  return currencyFormatter.format(value)
+}
+
+function handleDelete(productId: number): void {
+  const confirmed = window.confirm('Deseja remover este produto?')
+  if (!confirmed) {
+    return
+  }
+
+  const removed = removeProduct(productId)
+  if (!removed) {
+    alert('Produto possui pedidos associados. Estoque zerado.')
+  }
+}
 </script>
 
 <template>
@@ -75,13 +58,13 @@ export default defineComponent({
               label="Ver vitrine"
               icon="pi pi-eye"
               severity="secondary"
-              @click="uiState.adminPreviewMode = true; $router.push({ name: 'home' })"
+              @click="uiState.adminPreviewMode = true; router.push({ name: 'home' })"
             />
             <PButton
               label="Cadastrar produto"
               icon="pi pi-plus"
               class="self-start"
-              @click="$router.push({ name: 'admin-product-new' })"
+              @click="router.push({ name: 'admin-product-new' })"
             />
           </div>
         </div>

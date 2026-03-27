@@ -8,12 +8,16 @@ import ProductCard from '../components/ProductCard.vue'
 import { productState } from '../state/products.store'
 import { cartState } from '../state/cart.store'
 import { Product } from '../model/product.model'
+import type { Order, OrderItem } from '../state/orders.store'
+import type { CartItem } from '../interfaces/CartItem'
 import { categories } from '../data/categories'
 import { uiState, showToast } from '../state/ui.store'
 import { orderState } from '../state/orders.store'
 
 function addToCart(product: Product): void {
-  const currentItem = cartState.cart.getItems().find((item) => item.product.id === product.id)
+  const currentItem = cartState.cart.getItems().find(
+    (item: CartItem) => item.product.id === product.id,
+  )
   const currentQty = currentItem?.quantity ?? 0
   if (product.stock <= 0 || currentQty >= product.stock) {
     showToast('Estoque máximo atingido para este produto.', 'warning')
@@ -45,7 +49,7 @@ const filteredProducts = computed(() => {
   const minPrice = uiState.minPrice ? Number(uiState.minPrice) : 0
   const maxPrice = uiState.maxPrice ? Number(uiState.maxPrice) : 0
 
-  const filtered = productState.products.filter((product) => {
+  const filtered = productState.products.filter((product: Product) => {
     const matchesCategory = selectedCategory.value
       ? product.category.id === selectedCategory.value
       : true
@@ -58,11 +62,11 @@ const filteredProducts = computed(() => {
 
   const sorted = [...filtered]
   if (uiState.sortBy === 'price-asc') {
-    sorted.sort((a, b) => a.price - b.price)
+    sorted.sort((a: Product, b: Product) => a.price - b.price)
   } else if (uiState.sortBy === 'price-desc') {
-    sorted.sort((a, b) => b.price - a.price)
+    sorted.sort((a: Product, b: Product) => b.price - a.price)
   } else if (uiState.sortBy === 'stock-desc') {
-    sorted.sort((a, b) => b.stock - a.stock)
+    sorted.sort((a: Product, b: Product) => b.stock - a.stock)
   }
 
   return sorted
@@ -72,9 +76,9 @@ const featuredProducts = computed(() => productState.products.slice(0, 5))
 const featuredIndex = ref(0)
 const deliveredProductIds = computed(() => {
   const delivered = new Set<number>()
-  orderState.orders.forEach((order) => {
+  orderState.orders.forEach((order: Order) => {
     if (order.status === 'enviado') {
-      order.items.forEach((item) => delivered.add(item.productId))
+      order.items.forEach((item: OrderItem) => delivered.add(item.productId))
     }
   })
   return delivered

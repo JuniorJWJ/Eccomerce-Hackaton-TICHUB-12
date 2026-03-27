@@ -1,5 +1,5 @@
-﻿<script lang="ts" setup>
-import { computed, ref } from '@vue/reactivity'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { CartItem } from '../interfaces/CartItem'
 import { Cart } from '../model/cart.models'

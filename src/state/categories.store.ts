@@ -1,4 +1,4 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 import { Category } from '../model/category.model'
 
 const STORAGE_KEY = 'loja_categories'
@@ -15,7 +15,7 @@ function loadCategories(): Category[] {
 
   try {
     const parsed = JSON.parse(raw) as { id: number; title: string }[]
-    return parsed.map((item) => new Category(item.id, item.title))
+    return parsed.map((item: { id: number; title: string }) => new Category(item.id, item.title))
   } catch {
     return [
       new Category(1, 'Suplementos'),
@@ -26,7 +26,7 @@ function loadCategories(): Category[] {
 }
 
 function saveCategories(categories: Category[]): void {
-  const payload = categories.map((category) => ({
+  const payload = categories.map((category: Category) => ({
     id: category.id,
     title: category.title,
   }))
@@ -38,7 +38,7 @@ export const categoryState = reactive({
 })
 
 export function getNextCategoryId(): number {
-  const ids = categoryState.categories.map((category) => category.id)
+  const ids = categoryState.categories.map((category: Category) => category.id)
   return ids.length ? Math.max(...ids) + 1 : 1
 }
 
@@ -50,7 +50,7 @@ export function addCategory(title: string): Category {
 }
 
 export function updateCategory(id: number, title: string): boolean {
-  const category = categoryState.categories.find((item) => item.id === id)
+  const category = categoryState.categories.find((item: Category) => item.id === id)
   if (!category) {
     return false
   }
@@ -63,7 +63,7 @@ export function updateCategory(id: number, title: string): boolean {
 }
 
 export function removeCategory(id: number): boolean {
-  const index = categoryState.categories.findIndex((item) => item.id === id)
+  const index = categoryState.categories.findIndex((item: Category) => item.id === id)
   if (index === -1) {
     return false
   }

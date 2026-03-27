@@ -1,4 +1,4 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 import { Role } from '../enums/Role'
 
 export type User = {
@@ -125,7 +125,7 @@ export function loginWithCredentials(email: string, password: string): {
 } {
   const normalizedEmail = email.trim().toLowerCase()
   const user = users.find(
-    (item) => item.email.toLowerCase() === normalizedEmail && item.password === password,
+    (item: User) => item.email.toLowerCase() === normalizedEmail && item.password === password,
   )
 
   if (!user) {
@@ -162,13 +162,13 @@ export function registerUser(payload: {
     return { ok: false, message: 'A senha precisa ter pelo menos 6 caracteres.' }
   }
 
-  const existingUser = users.some((item) => item.email.toLowerCase() === normalizedEmail)
+  const existingUser = users.some((item: User) => item.email.toLowerCase() === normalizedEmail)
   if (existingUser) {
     return { ok: false, message: 'Este e-mail já está cadastrado.' }
   }
 
   const newUser: User = {
-    id: users.length ? Math.max(...users.map((user) => user.id)) + 1 : 1,
+    id: users.length ? Math.max(...users.map((user: User) => user.id)) + 1 : 1,
     name: payload.name.trim(),
     email: normalizedEmail,
     password: payload.password,

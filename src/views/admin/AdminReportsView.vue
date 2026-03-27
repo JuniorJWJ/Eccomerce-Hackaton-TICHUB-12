@@ -2,25 +2,29 @@
 import { computed } from 'vue'
 import Card from 'primevue/card'
 import { productState } from '../../state/products.store'
+import type { Product } from '../../model/product.model'
 
 const totalProducts = computed(() => productState.products.length)
 const totalStock = computed(() =>
-  productState.products.reduce((total, product) => total + product.stock, 0),
+  productState.products.reduce((total: number, product: Product) => total + product.stock, 0),
 )
 const outOfStock = computed(() =>
-  productState.products.filter((product) => product.stock === 0).length,
+  productState.products.filter((product: Product) => product.stock === 0).length,
 )
 const estimatedRevenue = computed(() =>
-  productState.products.reduce((total, product) => total + product.price * product.stock, 0),
+  productState.products.reduce(
+    (total: number, product: Product) => total + product.price * product.stock,
+    0,
+  ),
 )
 
 const topStock = computed(() => {
-  const maxStock = Math.max(1, ...productState.products.map((product) => product.stock))
+  const maxStock = Math.max(1, ...productState.products.map((product: Product) => product.stock))
   return productState.products
     .slice()
-    .sort((a, b) => b.stock - a.stock)
+    .sort((a: Product, b: Product) => b.stock - a.stock)
     .slice(0, 5)
-    .map((product) => ({
+    .map((product: Product) => ({
       name: product.name,
       stock: product.stock,
       width: Math.round((product.stock / maxStock) * 100),

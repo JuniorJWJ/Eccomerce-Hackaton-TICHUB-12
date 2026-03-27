@@ -1,6 +1,6 @@
-﻿<script lang="ts">
-import { defineComponent } from 'vue'
-import { RouterView } from 'vue-router'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import Menubar from 'primevue/menubar'
 import Breadcrumb from 'primevue/breadcrumb'
 import PButton from 'primevue/button'
@@ -13,6 +13,9 @@ import { getProductById } from '../state/products.store'
 import { uiState } from '../state/ui.store'
 import logoUrl from '../assets/logohackshop.jpg'
 
+const router = useRouter()
+const route = useRoute()
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
@@ -23,135 +26,117 @@ type BreadcrumbItem = {
   to?: string | { name: string }
 }
 
-export default defineComponent({
-  name: 'ConsumerLayout',
-  components: {
-    Menubar,
-    Breadcrumb,
-    PButton,
-    InputText,
-    CartPanel,
-    RouterView,
-  },
-  data() {
-    return {
-      isDark: false,
-      isMobileMenuOpen: false,
-      isUserMenuOpen: false,
-      isCartOpen: false,
-      cartState,
-      authState,
-      uiState,
-      Role,
-      logoUrl,
-    }
-  },
-  computed: {
-    menuItems() {
-      const items: { label: string; icon: string; command: () => void }[] = []
+const isDark = ref(false)
+const isMobileMenuOpen = ref(false)
+const isUserMenuOpen = ref(false)
+const isCartOpen = ref(false)
 
-      if (this.authState.isAuthenticated) {
-        items.push({
-          label: 'Finalizar compra',
-          icon: 'pi pi-shopping-cart',
-          command: () => this.goToCheckout(),
-        })
-      }
+const menuItems = computed(() => {
+  const items: { label: string; icon: string; command: () => void }[] = []
 
-      // if (this.authState.role === Role.ADMIN) {
-      //   items.push({
-      //     label: 'Admin',
-      //     icon: 'pi pi-shield',
-      //     command: () => this.goToAdmin(),
-      //   })
-      // }
+  if (authState.isAuthenticated) {
+    items.push({
+      label: 'Finalizar compra',
+      icon: 'pi pi-shopping-cart',
+      command: () => goToCheckout(),
+    })
+  }
 
-      return items
-    },
-    breadcrumbItems(): BreadcrumbItem[] {
-      const metaItems = (this.$route.meta.breadcrumb as BreadcrumbItem[] | undefined) ?? []
-      const items = metaItems.map((item) => ({ ...item }))
-
-      if (this.$route.name === 'product-details') {
-        const productId = Number(this.$route.params.id)
-        const product = getProductById(productId)
-        if (product && items.length > 0) {
-          items[items.length - 1].label = product.name
-        }
-      }
-
-      return items
-    },
-    totalItems(): number {
-      return this.cartState.cart.getTotalItems()
-    },
-    totalPrice(): number {
-      return this.cartState.cart.getFinalPrice()
-    },
-    roleLabel(): string {
-      return this.authState.role === Role.ADMIN ? 'ADMIN' : 'CLIENTE'
-    },
-    authButtonLabel(): string {
-      return this.authState.isAuthenticated ? `Sair (${this.roleLabel})` : 'Entrar'
-    },
-  },
-  methods: {
-    goToCheckout(): void {
-      if (!this.authState.isAuthenticated) {
-        this.$router.push({ name: 'login', query: { redirect: 'checkout' } })
-        return
-      }
-      this.$router.push({ name: 'checkout' })
-    },
-    goToAdmin(): void {
-      if (this.authState.role !== Role.ADMIN) {
-        this.$router.push({ name: 'login', query: { redirect: 'admin-products', role: 'admin' } })
-        return
-      }
-      this.$router.push({ name: 'admin-products' })
-    },
-    goToProfile(): void {
-      if (!this.authState.isAuthenticated) {
-        this.$router.push({ name: 'login', query: { redirect: 'profile' } })
-        return
-      }
-      this.$router.push({ name: 'profile' })
-    },
-    toggleDark(): void {
-      this.isDark = !this.isDark
-    },
-    toggleMobileMenu(): void {
-      this.isMobileMenuOpen = !this.isMobileMenuOpen
-    },
-    closeMobileMenu(): void {
-      this.isMobileMenuOpen = false
-    },
-    toggleUserMenu(): void {
-      this.isUserMenuOpen = !this.isUserMenuOpen
-    },
-    closeUserMenu(): void {
-      this.isUserMenuOpen = false
-    },
-    toggleCart(): void {
-      this.isCartOpen = !this.isCartOpen
-    },
-    closeCart(): void {
-      this.isCartOpen = false
-    },
-    formatPrice(value: number): string {
-      return currencyFormatter.format(value)
-    },
-    goToLogin(): void {
-      this.$router.push({ name: 'login' })
-    },
-    goToRegister(): void {
-      this.$router.push({ name: 'register' })
-    },
-    logoutUser(): void {
-      logout()
-    },
-  },
+  return items
 })
+
+const breadcrumbItems = computed((): BreadcrumbItem[] => {
+  const metaItems = (route.meta.breadcrumb as BreadcrumbItem[] | undefined) ?? []
+  const items = metaItems.map((item) => ({ ...item }))
+
+  if (route.name === 'product-details') {
+    const productId = Number(route.params.id)
+    const product = getProductById(productId)
+    if (product && items.length > 0) {
+      const last = items[items.length - 1]
+      if (last) {
+        last.label = product.name
+      }
+    }
+  }
+
+  return items
+})
+
+const totalItems = computed(() => cartState.cart.getTotalItems())
+const totalPrice = computed(() => cartState.cart.getFinalPrice())
+const roleLabel = computed(() => (authState.role === Role.ADMIN ? 'ADMIN' : 'CLIENTE'))
+const authButtonLabel = computed(() =>
+  authState.isAuthenticated ? `Sair (${roleLabel.value})` : 'Entrar',
+)
+
+function goToCheckout(): void {
+  if (!authState.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: 'checkout' } })
+    return
+  }
+  router.push({ name: 'checkout' })
+}
+
+function goToAdmin(): void {
+  if (authState.role !== Role.ADMIN) {
+    router.push({ name: 'login', query: { redirect: 'admin-products', role: 'admin' } })
+    return
+  }
+  router.push({ name: 'admin-products' })
+}
+
+function goToProfile(): void {
+  if (!authState.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: 'profile' } })
+    return
+  }
+  router.push({ name: 'profile' })
+}
+
+function toggleDark(): void {
+  isDark.value = !isDark.value
+}
+
+function toggleMobileMenu(): void {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+function closeMobileMenu(): void {
+  isMobileMenuOpen.value = false
+}
+
+function toggleUserMenu(): void {
+  isUserMenuOpen.value = !isUserMenuOpen.value
+}
+
+function closeUserMenu(): void {
+  isUserMenuOpen.value = false
+}
+
+function toggleCart(): void {
+  isCartOpen.value = !isCartOpen.value
+}
+
+function closeCart(): void {
+  isCartOpen.value = false
+}
+
+function formatPrice(value: number): string {
+  return currencyFormatter.format(value)
+}
+
+function goToLogin(): void {
+  router.push({ name: 'login' })
+}
+
+function goToRegister(): void {
+  router.push({ name: 'register' })
+}
+
+function logoutUser(): void {
+  logout()
+}
 </script>
 
 <template>
@@ -170,9 +155,9 @@ export default defineComponent({
                 class="flex cursor-pointer items-center gap-3 px-3 py-1.5"
                 role="button"
                 tabindex="0"
-                @click="$router.push({ name: 'home' })"
-                @keydown.enter.prevent="$router.push({ name: 'home' })"
-                @keydown.space.prevent="$router.push({ name: 'home' })"
+                @click="router.push({ name: 'home' })"
+                @keydown.enter.prevent="router.push({ name: 'home' })"
+                @keydown.space.prevent="router.push({ name: 'home' })"
               >
                 <div
                   class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm"

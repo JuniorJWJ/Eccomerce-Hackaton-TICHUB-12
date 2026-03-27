@@ -9,6 +9,8 @@ import PButton from 'primevue/button'
 import { categories } from '../../data/categories'
 import { categoryState } from '../../state/categories.store'
 import { addProduct, getProductById, updateProduct } from '../../state/products.store'
+import type { Product } from '../../model/product.model'
+import type { Category } from '../../model/category.model'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,7 +36,7 @@ const initialized = ref(false)
 
 watch(
   existingProduct,
-  (product) => {
+  (product: Product | undefined) => {
     if (!product || initialized.value) {
       return
     }
@@ -84,7 +86,9 @@ function handleSave(): void {
     return
   }
 
-  const selectedCategory = categoryOptions.value.find((category) => category.id === form.categoryId)
+  const selectedCategory = categoryOptions.value.find(
+    (category: Category) => category.id === form.categoryId,
+  )
   if (!selectedCategory) {
     error.value = 'Selecione uma categoria válida.'
     return

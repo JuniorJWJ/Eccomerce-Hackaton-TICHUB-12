@@ -6,6 +6,7 @@ import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { categoryState, addCategory, removeCategory, updateCategory } from '../../state/categories.store'
+import type { Product } from '../../model/product.model'
 import { productState } from '../../state/products.store'
 
 const name = ref('')
@@ -15,7 +16,7 @@ const editName = ref('')
 
 const categories = computed(() => categoryState.categories)
 const categoriesInUse = computed(() =>
-  new Set(productState.products.map((product) => product.category.id)),
+  new Set(productState.products.map((product: Product) => product.category.id)),
 )
 
 function handleAdd(): void {

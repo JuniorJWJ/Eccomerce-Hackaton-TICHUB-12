@@ -1,4 +1,4 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 import { Cart } from '../model/cart.models'
 import { getProductById } from './products.store'
 import { Product } from '../model/product.model'

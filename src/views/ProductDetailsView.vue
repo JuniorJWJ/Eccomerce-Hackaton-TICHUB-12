@@ -8,6 +8,7 @@ import Card from 'primevue/card'
 import PButton from 'primevue/button'
 import Tag from 'primevue/tag'
 import { Product } from '../model/product.model'
+import type { CartItem } from '../interfaces/CartItem'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -27,7 +28,9 @@ const canShare = computed(() => typeof navigator !== 'undefined' && 'share' in n
 
 function addToCart(): void {
   if (product) {
-    const currentItem = cartState.cart.getItems().find((item) => item.product.id === product.id)
+    const currentItem = cartState.cart.getItems().find(
+      (item: CartItem) => item.product.id === product.id,
+    )
     const currentQty = currentItem?.quantity ?? 0
     if (product.stock <= 0 || currentQty >= product.stock) {
       showToast('Estoque máximo atingido para este produto.', 'warning')

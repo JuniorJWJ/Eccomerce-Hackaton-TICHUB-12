@@ -188,7 +188,7 @@ function handlePay(): void {
               class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
               :class="index <= orderStepIndex ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700'"
             >
-              {{ index + 1 }}
+              {{ Number(index) + 1 }}
             </span>
             <span class="font-semibold text-emerald-700">{{ step }}</span>
             <span class="ml-auto text-xs text-emerald-600">

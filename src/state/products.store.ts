@@ -1,9 +1,9 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 import { Product } from '../model/product.model'
 import { seedProducts } from '../data/products'
 import { Category } from '../model/category.model'
 import { categoryState } from './categories.store'
-import { orderState } from './orders.store'
+import { orderState, type Order, type OrderItem } from './orders.store'
 
 const STORAGE_KEY = 'loja_products'
 
@@ -49,10 +49,10 @@ function loadProducts(): Product[] {
 
   try {
     const parsed = JSON.parse(raw) as StoredProduct[]
-    const seedById = new Map(seedProducts.map((product) => [product.id, product]))
+    const seedById = new Map(seedProducts.map((product: Product) => [product.id, product]))
     return parsed
-      .map((item, index) => {
-        const category = categoryState.categories.find((cat) => cat.id === item.categoryId)
+      .map((item: StoredProduct, index: number) => {
+        const category = categoryState.categories.find((cat: Category) => cat.id === item.categoryId)
         if (!category) {
           return null
         }
@@ -79,7 +79,7 @@ function loadProducts(): Product[] {
 }
 
 function saveProducts(products: Product[]): void {
-  const payload: StoredProduct[] = products.map((product) => ({
+  const payload: StoredProduct[] = products.map((product: Product) => ({
     id: product.id,
     name: product.name,
     price: product.price,
@@ -95,11 +95,11 @@ export const productState = reactive({
 })
 
 export function getProductById(id: number): Product | undefined {
-  return productState.products.find((product) => product.id === id)
+  return productState.products.find((product: Product) => product.id === id)
 }
 
 export function getNextProductId(): number {
-  const ids = productState.products.map((product) => product.id)
+  const ids = productState.products.map((product: Product) => product.id)
   return ids.length ? Math.max(...ids) + 1 : 1
 }
 
@@ -134,15 +134,15 @@ export function updateProduct(
     imageUrl?: string
   },
 ): Product | undefined {
-  const index = productState.products.findIndex((product) => product.id === id)
+  const index = productState.products.findIndex((product: Product) => product.id === id)
 
   if (index === -1) {
     return undefined
   }
 
   const current = productState.products[index]
-  const hasOrders = orderState.orders.some((order) =>
-    order.items.some((item) => item.productId === id),
+  const hasOrders = orderState.orders.some((order: Order) =>
+    order.items.some((item: OrderItem) => item.productId === id),
   )
   const safeStock = hasOrders ? Math.min(payload.stock, current.stock) : payload.stock
   const updated = new Product(
@@ -164,7 +164,7 @@ export function reduceStock(items: { productId: number; quantity: number }[]): v
   }
 
   items.forEach((item) => {
-    const product = productState.products.find((p) => p.id === item.productId)
+    const product = productState.products.find((p: Product) => p.id === item.productId)
     if (!product) {
       return
     }
@@ -175,14 +175,14 @@ export function reduceStock(items: { productId: number; quantity: number }[]): v
 }
 
 export function removeProduct(id: number): boolean {
-  const index = productState.products.findIndex((product) => product.id === id)
+  const index = productState.products.findIndex((product: Product) => product.id === id)
   if (index === -1) {
     return false
   }
 
   const product = productState.products[index]
-  const hasOrders = orderState.orders.some((order) =>
-    order.items.some((item) => item.productId === id),
+  const hasOrders = orderState.orders.some((order: Order) =>
+    order.items.some((item: OrderItem) => item.productId === id),
   )
 
   if (hasOrders) {

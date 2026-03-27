@@ -1,4 +1,4 @@
-﻿import { Product } from '../model/product.model'
+import { Product } from '../model/product.model'
 import { categories } from './categories'
 
 const suplemento = categories.find((category) => category.id === 1)!

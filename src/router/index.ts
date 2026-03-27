@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { Role } from '../enums/Role'
 import { authState } from '../state/auth.store'
 import ConsumerLayout from '../layouts/ConsumerLayout.vue'
@@ -164,11 +164,11 @@ router.beforeEach((to) => {
   const requiresAdmin = to.matched.some((record) => record.meta.requiresRole === Role.ADMIN)
 
   if (requiresAuth && !authState.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.name ?? 'home' } }
+    return { name: 'login', query: { redirect: to.fullPath } }
   }
 
   if (requiresAdmin && authState.role !== Role.ADMIN) {
-    return { name: 'login', query: { redirect: to.name ?? 'home', role: 'admin' } }
+    return { name: 'login', query: { redirect: to.fullPath, role: 'admin' } }
   }
 })
 

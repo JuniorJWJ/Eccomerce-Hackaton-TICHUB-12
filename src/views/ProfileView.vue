@@ -6,6 +6,7 @@ import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Textarea from 'primevue/textarea'
 import { authState, updateProfile } from '../state/auth.store'
+import type { Profile } from '../state/auth.store'
 import { getOrdersByUser } from '../state/orders.store'
 
 const profile = computed(() => authState.profile)
@@ -19,10 +20,10 @@ const state = ref(profile.value.state)
 const zip = ref(profile.value.zip)
 const photoUrl = ref(profile.value.photoUrl)
 const mockAvatars = [
-  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%23F8B4B4\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
-  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%239DD7F7\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
-  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%23FBD38D\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
-  'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\"><rect width=\"120\" height=\"120\" fill=\"%239AE6B4\"/><circle cx=\"60\" cy=\"48\" r=\"22\" fill=\"%23fff\"/><rect x=\"28\" y=\"76\" width=\"64\" height=\"28\" rx=\"14\" fill=\"%23fff\"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="%23F8B4B4"/><circle cx="60" cy="48" r="22" fill="%23fff"/><rect x="28" y="76" width="64" height="28" rx="14" fill="%23fff"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="%239DD7F7"/><circle cx="60" cy="48" r="22" fill="%23fff"/><rect x="28" y="76" width="64" height="28" rx="14" fill="%23fff"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="%23FBD38D"/><circle cx="60" cy="48" r="22" fill="%23fff"/><rect x="28" y="76" width="64" height="28" rx="14" fill="%23fff"/></svg>',
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="%239AE6B4"/><circle cx="60" cy="48" r="22" fill="%23fff"/><rect x="28" y="76" width="64" height="28" rx="14" fill="%23fff"/></svg>',
 ]
 
 const saved = ref(false)
@@ -44,7 +45,7 @@ function formatStatus(status: string): string {
   return status
 }
 
-watch(profile, (next) => {
+watch(profile, (next: Profile) => {
   name.value = next.name
   email.value = next.email
   phone.value = next.phone

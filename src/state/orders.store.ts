@@ -1,7 +1,8 @@
-﻿import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 import { cartState } from './cart.store'
 import { authState } from './auth.store'
 import { reduceStock } from './products.store'
+import type { CartItem } from '../interfaces/CartItem'
 
 export type OrderItem = {
   productId: number
@@ -36,14 +37,14 @@ function loadOrders(): Order[] {
 
   try {
     const parsed = JSON.parse(raw) as Order[]
-    return parsed.map((order) => ({
+    return parsed.map((order: Order) => ({
       ...order,
       status: order.status ?? 'confirmed',
       statusHistory:
         order.statusHistory && order.statusHistory.length
           ? order.statusHistory
           : [{ status: order.status ?? 'confirmed', at: order.createdAt ?? new Date().toISOString() }],
-      items: (order.items ?? []).map((item) => ({
+      items: (order.items ?? []).map((item: OrderItem) => ({
         ...item,
         status: item.status ?? (order.status ?? 'confirmed'),
       })),
@@ -73,7 +74,7 @@ export function createOrder(payload?: {
     return null
   }
 
-  const items = cartState.cart.getItems().map((item) => ({
+  const items = cartState.cart.getItems().map((item: CartItem) => ({
     productId: item.product.id,
     name: item.product.name,
     price: item.product.price,
@@ -85,7 +86,7 @@ export function createOrder(payload?: {
     return null
   }
 
-  const totalBefore = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalBefore = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0)
   const totalAfter = payload?.totalAfter ?? totalBefore
   const order: Order = {
     id: `ORD-${Date.now()}`,
@@ -103,23 +104,23 @@ export function createOrder(payload?: {
   orderState.orders.unshift(order)
   saveOrders(orderState.orders)
 
-  reduceStock(items.map((item) => ({ productId: item.productId, quantity: item.quantity })))
+  reduceStock(items.map((item: OrderItem) => ({ productId: item.productId, quantity: item.quantity })))
 
   return order
 }
 
 export function updateOrderStatus(orderId: string, status: OrderStatus): void {
-  const order = orderState.orders.find((item) => item.id === orderId)
+  const order = orderState.orders.find((item: Order) => item.id === orderId)
   if (!order) {
     return
   }
 
   order.status = status
   order.statusHistory.push({ status, at: new Date().toISOString() })
-  order.items = order.items.map((item) => ({ ...item, status }))
+  order.items = order.items.map((item: OrderItem) => ({ ...item, status }))
   saveOrders(orderState.orders)
 }
 
 export function getOrdersByUser(userId: number): Order[] {
-  return orderState.orders.filter((order) => order.userId === userId)
+  return orderState.orders.filter((order: Order) => order.userId === userId)
 }

@@ -5,3 +5,16 @@ declare module '@vue/runtime-core' {
     $confirm: import('primevue/confirmationservice').ConfirmationServiceMethods
   }
 }
+
+declare module 'vue' {
+  export {
+    createApp,
+    defineComponent,
+    computed,
+    ref,
+    reactive,
+    watch,
+    onMounted,
+    onBeforeUnmount,
+  } from '@vue/runtime-dom'
+}
