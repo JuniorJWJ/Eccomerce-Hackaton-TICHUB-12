@@ -11,6 +11,7 @@ import { Role } from '../enums/Role'
 import CartPanel from '../components/CartPanel.vue'
 import { getProductById } from '../state/products.store'
 import { uiState } from '../state/ui.store'
+import logoUrl from '../assets/logohackshop.jpg'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -42,6 +43,7 @@ export default defineComponent({
       authState,
       uiState,
       Role,
+      logoUrl,
     }
   },
   computed: {
@@ -173,18 +175,15 @@ export default defineComponent({
                 @keydown.space.prevent="$router.push({ name: 'home' })"
               >
                 <div
-                  class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm dark:bg-slate-100 dark:text-slate-900"
+                  class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm"
                 >
-                  LP
+                  <img :src="logoUrl" alt="Loja PrimeVue" class="h-10 w-10" />
                 </div>
                 <div>
                   <p
                     class="text-[11px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-400"
                   >
-                    Loja PrimeVue
-                  </p>
-                  <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Ecommerce Studio
+                    HackShop
                   </p>
                 </div>
               </div>
@@ -229,12 +228,7 @@ export default defineComponent({
                 </div>
               </div>
               <div class="relative">
-                <PButton
-                  size="small"
-                  icon="pi pi-user"
-                  severity="secondary"
-                  @click="toggleUserMenu"
-                />
+                <PButton size="small" icon="pi pi-user" severity="secondary" @click="toggleUserMenu" />
                 <div
                   v-if="isUserMenuOpen"
                   class="absolute right-0 top-12 z-50 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg"
